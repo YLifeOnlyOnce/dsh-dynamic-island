@@ -14,19 +14,17 @@
 import { IslandDock } from './IslandDock.jsx'
 import { createIslandStore } from './island-store.js'
 import { createLiveBridge } from './live-bridge.js'
-import { injectIslandStyles } from './styles.js'
 import { en, NS, zh } from './locales.js'
 
 /** 需要的服务：插槽、会话服务、本地化、模型目录。 */
 export const inject = ['slots', 'sessions', 'locale', 'modelDirectories']
 
 /**
- * 客户端插件主体：注入样式 + 注册字典 + 把岛挂进 shell.overlay。
+ * 客户端插件主体：注册字典 + 把岛挂进 shell.overlay。
  * @param ctx - 客户端根上下文（cordis 注入）。
  */
 export function apply(ctx) {
-  injectIslandStyles()
-
+  // 宿主样式由 IslandDock 挂载时注入（shadow root 内放岛样式）
   ctx.effect(() => ctx.locale.register(NS, { zh, en }), 'ui-island: dictionaries')
 
   ctx.slots.inject('shell.overlay', () => ctx.slots.register({

@@ -184,8 +184,13 @@ dsh plugin --profile web add dsh-dynamic-island
 - **解除阻塞**：调用与 ui-goal 同一个 `ctx.remote.goals.resume` CAS 远端。
 - **槽位**：岛只注册 `shell.overlay`（root 浮层），不触碰任何 composer /
   input / header 原生槽位。
-- **全局监听**：岛不添加全局键盘监听；拖拽后仅以 capture-once 抑制「落在岛
-  表面内」的 click（`elRef.contains(target)` 校验），原生元素的点击绝不拦截。
+- **样式隔离（Shadow DOM）**：岛渲染在 shadow root 内，全部样式放进 shadow 的
+  `<style>`，与原生**双向隔离**——岛样式不漏出（`body:not([data-ds-dark-theme])`
+  浅色块转换为 `:host([data-ds-theme="light"])`），原生全局样式（button 等
+  通用类名）也穿不进 shadow。宿主仅一个命名空间类 `.dsh-island-host`，
+  主题经 MutationObserver 桥接 body[data-ds-dark-theme]。
+- **全局监听**：岛不添加全局键盘监听；拖拽遵循 GUI 内部 DragHandle 模式
+  （元素级 handler + 延迟 pointer capture），原生元素不受影响。
 - **事件面**：岛只读快照/投影（HostObservable 只读），不修改任何会话状态。
 
 ## 九、对齐审计表（逐功能 × DSH 信号，2026-08 核实）
