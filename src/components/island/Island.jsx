@@ -2,7 +2,6 @@ import { CloseIcon } from '../icons/Icons.jsx'
 import { useCompanion } from '../../context/companion.js'
 import { Core } from './Core.jsx'
 import { StreamLine } from './StreamLine.jsx'
-import { ModelChip } from './ModelChip.jsx'
 import { GoalRow } from './GoalRow.jsx'
 import { TodoTicker } from './TodoTicker.jsx'
 import { ChecklistPanel } from './ChecklistPanel.jsx'
@@ -43,7 +42,6 @@ export function Island() {
           <div className="task-copy">
             <div className="task-topline">
               <span>{state.eyebrow}</span>
-              <ModelChip model={state.model} />
               <span className="task-step">{state.step}</span>
             </div>
             <h1>{state.title}</h1>

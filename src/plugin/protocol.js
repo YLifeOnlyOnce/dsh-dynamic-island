@@ -37,12 +37,12 @@ export function hasTurnEnd(turnEnds) {
   return turnEnds != null && turnEnds.size > 0
 }
 
-/** 步骤计数 → 展示文案，如 { turn: 2, step: 3, total: 6 } → '03 / 06'。 */
+/** 步骤计数 → 展示文案，如 { turn: 2, step: 3, total: 6 } → '步骤 03 / 06'。 */
 export function stepLabel({ turn, step, total }) {
   if (turn == null) return '—'
   const s = String(step ?? 1).padStart(2, '0')
   const t = String(total ?? turn).padStart(2, '0')
-  return `${s} / ${t}`
+  return `步骤 ${s} / ${t}`
 }
 
 /** token 数 → 紧凑文案：2216 → '2.2k'。 */
