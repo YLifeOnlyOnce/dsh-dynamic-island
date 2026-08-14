@@ -79,7 +79,6 @@ export const moods = {
     goal: { done: 2, total: 5, title: '登录页移动端适配' },
     todo: { done: 2, total: 6, current: '检查移动端断点' },
     todos: TODO_ITEMS,
-    jobs: [{ name: 'npm run build', status: 'running', elapsed: '01:12' }],
     stream: ['命中 3 处断点：sm / md / lg 各一处，', '接下来读取 LoginForm.tsx 确认结构。'],
     feed: [
       { kind: 'tool', name: 'bash', args: 'rg "@media|sm:|md:" src/components', exit: 0, duration: '412ms' },
@@ -149,7 +148,6 @@ export const moods = {
     goal: { done: 2, total: 5, title: '登录页移动端适配' },
     todo: { done: 3, total: 6, current: '本地预览' },
     todos: TODO_ITEMS,
-    jobs: [{ name: 'npm run dev', status: 'failed', detail: 'exit code 1' }],
     feed: [
       { kind: 'tool', name: 'bash', args: 'npm run dev', exit: 1, duration: '88ms' },
       { kind: 'text', text: '端口 5173 已被占用，进程退出', tone: 'answer' },

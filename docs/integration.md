@@ -212,7 +212,7 @@ dsh plugin --profile web add dsh-dynamic-island
 | 结果小票 tokens | 投影 `tokenUsage`（uncachedInput/output/cacheRead/cacheWrite） | ✅ | 已修正字段名（此前用 inputTokens/reasoning） |
 | 结果小票时长 | 快照 `turnTimings` 最近回合起止差 | ✅ | 兜底 sessionStats.llmMs+toolMs |
 | 结果小票 files/checks | 无投影 | ❌ | TODO：从 chat 节点 deliverables 派生 |
-| 后台任务胶囊 | `session/jobs` 帧 → sessions 列表 `jobsBySession` 镜像（JobView） | ✅（待实机） | 已接：live-bridge 读 `ctx.sessions.list` 镜像，协议层映射 label/status/detail/耗时 |
+| 后台任务胶囊 | `session/jobs` 帧 → sessions 列表 `jobsBySession` 镜像（JobView） | ✅（信号已核实） | 0.3.0 起已从岛 UI 移除（改为模型徽章）；组件/数据面保留备用 |
 | 模型徽章 | `modelDirectories` 服务（ui-model-selection）的 per-session 目录 store：`ModelSelection {provider, model}` | ✅（待实机） | 已接：live-bridge 订阅目录 store，徽章显示 provider · model |
 | 最近完成小票堆 | turn/end 序列 | ⚠️ | chat 节点可遍历历史回合，live-bridge 未实现 |
 | 上下文用量 | 投影 `contextPressure` | ✅ | 已有投影键，岛尚未展示该条 |

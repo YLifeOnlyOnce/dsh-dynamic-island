@@ -64,7 +64,6 @@ export function createLiveBridge(ctx, actions) {
       projections: readProjections(currentInfo),
       lastReason: lastTurnEndReasonOf(snapshot),
       model: currentModelLabel(),
-      jobs: currentJobs(),
       // 插件模式不渲染审批面：审批完全交给原生输入栏，岛只当旁观者。
       ignoreApproval: true,
     })
@@ -79,13 +78,6 @@ export function createLiveBridge(ctx, actions) {
     return current?.provider && current?.model ? `${current.provider} · ${current.model}` : undefined
   }
 
-  /** 当前会话的后台任务：session/jobs 帧的 jobsBySession 镜像（骑在 sessions.list 上）。 */
-  const currentJobs = () => {
-    const info = ctx.sessions?.currentProvideInfo?.getSnapshot?.()
-    const id = info?.sessionId
-    return id ? ctx.sessions?.list?.getSnapshot?.()?.jobsBySession?.[id] : undefined
-  }
-
   /** 当前会话的 info 变化时，重建对快照、投影、模型目录与 jobs 列表的订阅。 */
   const resubscribeNested = info => {
     for (const off of nested) off()
@@ -98,7 +90,6 @@ export function createLiveBridge(ctx, actions) {
     }
     const dirStore = info?.sessionId && ctx.modelDirectories?.directoryFor?.(info.sessionId)?.store
     if (dirStore?.subscribe) sources.push(dirStore)
-    if (ctx.sessions?.list?.subscribe) sources.push(ctx.sessions.list)
     for (const src of sources) nested.push(src.subscribe(push))
   }
 

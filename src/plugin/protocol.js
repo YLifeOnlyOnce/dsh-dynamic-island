@@ -66,7 +66,6 @@ export function deriveMood({
   projections = {},
   model,
   lastReason,
-  jobs,
   ignoreApproval = false,
 } = {}) {
   const {
@@ -124,27 +123,21 @@ export function deriveMood({
       }
     : undefined
 
-  // ── 流式预览（assistant/chunk 的投影：partial 正文）──
-  const stream = mood === 'thinking' || mood === 'working'
-    ? [partial?.text ?? '…'].filter(Boolean)
-    : undefined
+  // ── 活动行（detail）：只放真实内容 —— 流式正文（partial），无则隐藏 ──
+  //   与 title 不重复（title 是目标/任务），stream 打字机在 live 模式弃用
+  //   （数据陈旧、与 detail 重复），demo 的剧本 stream 走另一条渲染路径。
+  const detail = partial?.text?.trim() || undefined
 
-  // ── 过程活动流（当前可见状态；完整时间线需订阅会话 log 事件）──
-  const feed = []
-  if (running && runningCalls.length > 0) {
-    for (const call of runningCalls) {
-      feed.push({
-        kind: 'tool',
-        name: call.name ?? 'tool',
-        args: call.argumentsPreview ?? call.arguments ?? '',
-        exit: null,
-        duration: '运行中',
-      })
-    }
-  }
-  if (feed.length === 0) {
-    feed.push({ kind: 'system', text: '会话已就绪 · 实时状态投影' })
-  }
+  // ── 过程活动流（live 只放真实可见内容；空则收起，不渲染填充语）──
+  //   运行中的工具以文本行呈现（不套工具卡 —— 无参数/退出码，套卡只会
+  //   产生误导性的「待审批」胶囊）。
+  const feed = (running && runningCalls.length > 0)
+    ? runningCalls.map(call => ({
+        kind: 'text',
+        text: `正在执行 ${call.name ?? '工具'}`,
+        tone: 'answer',
+      }))
+    : []
 
   return {
     mood,
@@ -152,7 +145,7 @@ export function deriveMood({
     tone: MOOD_TONE[mood],
     eyebrow: MOOD_META[mood].eyebrow,
     title: titleOf(mood, projections),
-    detail: detailOf(mood),
+    detail,
     step,
     progress,
     model,
@@ -167,34 +160,13 @@ export function deriveMood({
     todo: todoSummary(todos),
     todos: todos?.map(t => t.content) ?? undefined,
     receipt,
-    jobs: jobsToChips(jobs),
-    stream,
+    jobs: undefined, // 后台任务已在 0.3.0 从岛 UI 移除（数据面保留备用）
     feed,
     approval: approvalItem
       ? { toolName: approvalItem.payload?.toolName, reason: approvalItem.payload?.reason }
       : undefined,
     contextPressure,
   }
-}
-
-/** JobView（session/jobs 镜像）→ 岛内胶囊形状。 */
-function jobsToChips(jobs) {
-  if (!Array.isArray(jobs) || jobs.length === 0) return undefined
-  return jobs.map(j => ({
-    name: j.label ?? j.kind ?? 'job',
-    status: j.status,
-    detail: j.detail,
-    elapsed: j.status === 'running' || j.status === 'stopping'
-      ? fmtSince(j.startedAt)
-      : undefined,
-  }))
-}
-
-/** 运行中任务的已耗时（startedAt → 现在）。 */
-function fmtSince(startedAt) {
-  if (!startedAt) return undefined
-  const s = Math.max(0, Math.floor((Date.now() - startedAt) / 1000))
-  return `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`
 }
 
 /** 最近闭合回合的起止差 → 人类可读时长；无则 undefined。 */
@@ -271,10 +243,6 @@ const MOOD_TITLE = {
   alert: '需要查看',
   blocked: '目标推进被阻塞',
   'max-tokens': '回合被截断',
-}
-
-function detailOf(mood) {
-  return MOOD_TITLE[mood]
 }
 
 /** todo 整表快照 → 清单点字段。 */

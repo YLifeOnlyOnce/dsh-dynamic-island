@@ -1,4 +1,5 @@
 import { ChevronIcon, RetryIcon } from '../icons/Icons.jsx'
+import { ModelChip } from './ModelChip.jsx'
 import { useCompanion } from '../../context/companion.js'
 
 /** 各情绪对应的页脚状态文案。 */
@@ -13,8 +14,8 @@ const STATUS_TEXT = {
 }
 
 /**
- * 岛页脚 —— 「查看过程」开关 + 按情绪分化的动作按钮（重试/解除阻塞/继续）。
- * 停止已移除：任务取消完全交给 Harness 原生界面。
+ * 岛页脚 —— 「查看过程」开关（feed 为空时隐藏）+ 模型徽章 + 状态。
+ * 动作按钮按情绪分化（重试/解除阻塞/继续）；停止已交给 Harness 原生界面。
  */
 export function IslandFooter() {
   const {
@@ -22,6 +23,7 @@ export function IslandFooter() {
     state,
     feedOpen,
     setFeedOpen,
+    feed,
     retrying,
     handleRetry,
     unblocking,
@@ -30,11 +32,15 @@ export function IslandFooter() {
     handleContinue,
   } = useCompanion()
 
+  const hasFeed = feed.length > 0
+
   return (
     <div className="island-footer">
-      <button className="details-button" onClick={() => setFeedOpen(o => !o)} aria-expanded={feedOpen}>
-        查看过程 <ChevronIcon open={feedOpen} />
-      </button>
+      {hasFeed && (
+        <button className="details-button" onClick={() => setFeedOpen(o => !o)} aria-expanded={feedOpen}>
+          查看过程 <ChevronIcon open={feedOpen} />
+        </button>
+      )}
       <span className="footer-right">
         {active === 'alert' && (
           <button className="button button--retry" onClick={handleRetry} disabled={retrying}>
@@ -51,6 +57,7 @@ export function IslandFooter() {
             {continuing ? '继续中…' : '继续'}
           </button>
         )}
+        {state.model && <ModelChip model={state.model} />}
         <span className="footer-status">
           <i className={`status-dot status-dot--${state.tone}`} />
           {STATUS_TEXT[active]}
