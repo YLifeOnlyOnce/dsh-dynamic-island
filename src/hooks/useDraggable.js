@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useRef, useState } from 'react'
 
 const clamp = (v, min, max) => Math.min(Math.max(v, min), max)
 
@@ -23,17 +23,17 @@ function readOffset(storageKey) {
  *   const drag = useDraggable({ storageKey: 'my-widget:pos' })
  *   <div ref={drag.ref} {...drag.handlers} style={drag.style} className={drag.dragging ? 'is-dragging' : ''}>
  *
- * 设计要点（不干扰原生交互）：
- *   - **不用 setPointerCapture**：捕获会把 click 重定向到容器，导致岛内按钮
- *     （查看过程 / 批准 / 暂不…）收不到点击。这里按下只记录起点，
- *     随后在 window 上挂 pointermove/pointerup 完成拖拽会话；
- *   - 位移超过 4px 才判定为拖拽（此时加 `is-dragging` 类并抑制随后的 click）；
- *   - 单击（未移动）完全走原生 click 流程，按钮照常工作；
- *   - 拖拽后的 click 抑制只作用于「落在岛表面内」的目标，
+ * 关键设计（保证拖拽与按钮点击都正常）：
+ *   - **不用 setPointerCapture**（会把 click 重定向到容器，按钮失灵）；
+ *   - pointerdown 里 **e.preventDefault()** —— 阻止文本选择与原生拖拽，
+ *     避免浏览器发 pointercancel 掐断拖拽会话；click 不受影响，按钮照常；
+ *   - 按下即把 pointermove/up/cancel 挂到 window（不依赖渲染时序），
+ *     指针移出岛外也跟手；位移超 4px 才算拖拽；
+ *   - 单击走原生 click 流程；拖拽后的 click 抑制只作用于岛表面内，
  *     原生界面元素的点击绝不拦截。
+ *   配套 CSS：宿主需给拖拽表面加 user-select:none（见 island-plugin.css）。
  */
 export function useDraggable({ storageKey } = {}) {
-  const [tracking, setTracking] = useState(false)
   const [dragging, setDragging] = useState(false)
   const [offset, setOffset] = useState(() => readOffset(storageKey))
   const elRef = useRef(null)
@@ -54,10 +54,12 @@ export function useDraggable({ storageKey } = {}) {
     }
   }, [])
 
-  /** 结束一次拖拽会话；moved=true 时保存位置并抑制本次拖拽引发的 click。 */
+  /** 结束拖拽会话；moved=true 时保存位置并抑制本次拖拽引发的 click。 */
   const endDrag = useCallback(moved => {
+    window.removeEventListener('pointermove', moveRef.current)
+    window.removeEventListener('pointerup', upRef.current)
+    window.removeEventListener('pointercancel', cancelRef.current)
     drag.current = null
-    setTracking(false)
     setDragging(false)
     if (moved) {
       // 只抑制「落在岛表面内」的 click（拖拽后防误触岛内按钮/紧凑点）；
@@ -78,40 +80,41 @@ export function useDraggable({ storageKey } = {}) {
     }
   }, [storageKey])
 
-  // 拖拽会话的 window 级监听（按下即挂，松开即卸；不干扰按钮点击）
-  useEffect(() => {
-    if (!tracking) return
-    const move = e => {
-      const d = drag.current
-      if (!d || e.pointerId !== d.id) return
-      const dx = e.clientX - d.startX
-      const dy = e.clientY - d.startY
-      if (!d.moved && Math.hypot(dx, dy) < 4) return
-      if (!d.moved) {
-        d.moved = true
-        setDragging(true)
-      }
-      setOffset(clampOffset(d.baseX + dx, d.baseY + dy))
+  const onMove = useCallback(e => {
+    const d = drag.current
+    if (!d || e.pointerId !== d.id) return
+    const dx = e.clientX - d.startX
+    const dy = e.clientY - d.startY
+    if (!d.moved && Math.hypot(dx, dy) < 4) return
+    if (!d.moved) {
+      d.moved = true
+      setDragging(true)
     }
-    const up = e => {
-      const d = drag.current
-      if (!d || e.pointerId !== d.id) return
-      endDrag(d.moved)
-    }
-    const cancel = () => endDrag(false)
-    window.addEventListener('pointermove', move)
-    window.addEventListener('pointerup', up)
-    window.addEventListener('pointercancel', cancel)
-    return () => {
-      window.removeEventListener('pointermove', move)
-      window.removeEventListener('pointerup', up)
-      window.removeEventListener('pointercancel', cancel)
-    }
-  }, [tracking, clampOffset, endDrag])
+    e.preventDefault() // 拖拽期间禁止页面滚动/选择等原生行为
+    setOffset(clampOffset(d.baseX + dx, d.baseY + dy))
+  }, [clampOffset])
+
+  const onUp = useCallback(e => {
+    const d = drag.current
+    if (!d || e.pointerId !== d.id) return
+    endDrag(d.moved)
+  }, [endDrag])
+
+  const onCancel = useCallback(() => endDrag(false), [endDrag])
+
+  // 稳定的引用，供 add/removeEventListener 使用
+  const moveRef = useRef(onMove)
+  moveRef.current = onMove
+  const upRef = useRef(onUp)
+  upRef.current = onUp
+  const cancelRef = useRef(onCancel)
+  cancelRef.current = onCancel
 
   const onPointerDown = useCallback(e => {
     if (e.button !== 0) return
     if (e.target.closest('input, textarea, select')) return
+    // 关键：阻止文本选择与原生拖拽（SVG/图片）→ 不触发 pointercancel
+    e.preventDefault()
     drag.current = {
       id: e.pointerId,
       startX: e.clientX,
@@ -120,13 +123,18 @@ export function useDraggable({ storageKey } = {}) {
       baseY: offsetRef.current?.y ?? 0,
       moved: false,
     }
-    setTracking(true)
+    window.addEventListener('pointermove', moveRef.current)
+    window.addEventListener('pointerup', upRef.current)
+    window.addEventListener('pointercancel', cancelRef.current)
   }, [])
 
   return {
     ref: elRef,
     dragging,
     style: offset ? { transform: `translate3d(${offset.x}px, ${offset.y}px, 0)` } : undefined,
-    handlers: { onPointerDown },
+    handlers: {
+      onPointerDown,
+      onDragStart: e => e.preventDefault(), // 防止原生拖拽接管（SVG 图标等）
+    },
   }
 }

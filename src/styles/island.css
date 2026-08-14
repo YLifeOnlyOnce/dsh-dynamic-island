@@ -6,7 +6,7 @@
 .stage { position: relative; z-index: 2; display: grid; justify-items: center; padding: clamp(120px, 20vh, 210px) 20px 150px; min-height: calc(100vh - 62px); }
 
 /* ---- 演示态拖拽层（与插件共用 useDraggable） ---- */
-.demo-drag { position: relative; cursor: grab; touch-action: none; }
+.demo-drag { position: relative; cursor: grab; touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
 .demo-drag.is-dragging { cursor: grabbing; user-select: none; }
 
 /* ---- 岛壳 ---- */

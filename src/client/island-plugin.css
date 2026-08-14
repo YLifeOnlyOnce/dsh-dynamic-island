@@ -13,6 +13,10 @@
   pointer-events: auto;
   cursor: grab;
   touch-action: none;
+  /* 拖拽可用性的关键：禁止文本选择，避免浏览器发 pointercancel 掐断拖拽会话 */
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
 }
 
 .island-float.is-dragging {
