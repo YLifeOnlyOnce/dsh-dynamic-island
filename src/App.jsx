@@ -151,8 +151,9 @@ function App() {
   }
 
   function handleApproval(value) {
+    // 审批由 Harness 原生输入栏处理（原本的交互）；灵动岛是同步镜像的附加操作入口。
+    // 这里只记录结果并同步反映在岛内，不驱动底层任务状态。
     setApproved(value)
-    window.setTimeout(() => chooseState(value ? 'working' : 'thinking'), 700)
   }
 
   return (
@@ -187,10 +188,17 @@ function App() {
             {active === 'approval' ? (
               <div className="approval-row">
                 <div className="approval-copy"><span className="approval-lock">⌁</span><span>这一步将修改项目依赖</span></div>
-                <div className="approval-actions">
-                  <button className="button button--quiet" onClick={() => handleApproval(false)}>暂不</button>
-                  <button className="button button--approve" onClick={() => handleApproval(true)}>批准 <ArrowIcon /></button>
-                </div>
+                {approved === null ? (
+                  <div className="approval-actions">
+                    <button className="button button--quiet" onClick={() => handleApproval(false)}>暂不</button>
+                    <button className="button button--approve" onClick={() => handleApproval(true)}>批准 <ArrowIcon /></button>
+                  </div>
+                ) : (
+                  <div className={`approval-resolved ${approved ? 'approval-resolved--ok' : 'approval-resolved--no'}`}>
+                    <span className="approval-resolved-mark">{approved ? '✓' : '—'}</span>
+                    <span>{approved ? '已批准 · 等待 Harness 同步执行' : '已暂缓 · 方案保留'}</span>
+                  </div>
+                )}
               </div>
             ) : (
               <div className="island-footer">
@@ -198,7 +206,7 @@ function App() {
                 <span className="footer-status"><i className={`status-dot status-dot--${state.tone}`} /> {active === 'complete' ? '已保存到会话' : active === 'alert' ? '等待处理' : '实时同步'}</span>
               </div>
             )}
-            {approved !== null && <div className="approval-toast">{approved ? '已批准，正在继续' : '已保留当前方案'}</div>}
+            {approved !== null && <div className="approval-toast">{approved ? '已批准 · 原生输入栏同步生效' : '已暂缓 · 原生输入栏同步生效'}</div>}
           </div>
         </div>
       </section>
