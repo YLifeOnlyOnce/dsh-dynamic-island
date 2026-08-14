@@ -107,13 +107,19 @@ npm run dev
 
 ## 🔌 集成进 DSH（插件化）
 
-这个项目**就是**一枚 DSH 客户端插件 —— 仓库根即双面包插件包，直接装进你的 `web` profile：
+这个项目**就是**一枚 DSH 客户端插件 —— 仓库根即双面包插件包，已在 npm 发布（`dsh-dynamic-island`）：
 
 ```sh
-npm install && npm run build:plugin      # 产出 lib/client.js（loader 合规 bundle）
-dsh plugin --profile web add /path/to/this-repo
-dsh --profile web                        # 重启 → 岛浮现在 GUI 上
+# 直接装进 Harness（web profile）
+dsh plugin --profile web add dsh-dynamic-island
+dsh --profile web          # 重启 → 岛浮现在 GUI 右上角，可拖拽、位置记忆
+
+# 或作为普通依赖（开发/引用浏览器半场）
+npm install dsh-dynamic-island
 ```
+
+本地开发时也可以从源码装（`npm run build:plugin` 产出 `lib/client.js` 后，
+`dsh plugin --profile web add /path/to/this-repo`）。
 
 机制已全部对照 DeepSeek Harness 源码核实：
 

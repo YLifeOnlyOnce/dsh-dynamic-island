@@ -107,13 +107,18 @@ Open the address Vite prints — the `灵动岛演示` dock at the bottom flips 
 
 ## 🔌 Integrating into DSH (plugin)
 
-This project **is** a DSH client plugin — the repo root is the dual-face package, install it straight into your `web` profile:
+This project **is** a DSH client plugin — the repo root is the dual-face package, published to npm as `dsh-dynamic-island`:
 
 ```sh
-npm install && npm run build:plugin      # emit lib/client.js (loader-compliant bundle)
-dsh plugin --profile web add /path/to/this-repo
-dsh --profile web                        # restart → island floats over the GUI
+# Install straight into Harness (web profile)
+dsh plugin --profile web add dsh-dynamic-island
+dsh --profile web          # restart → the island floats over the GUI, draggable, position remembered
+
+# Or as a regular dependency (dev / referencing the browser half)
+npm install dsh-dynamic-island
 ```
+
+For local development you can also install from source (`npm run build:plugin` emits `lib/client.js`, then `dsh plugin --profile web add /path/to/this-repo`).
 
 Every mechanism is verified against the DeepSeek Harness source:
 
