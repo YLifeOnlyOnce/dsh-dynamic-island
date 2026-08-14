@@ -1,0 +1,27 @@
+/* ============================================================
+   dock.css —— 底部演示坞：八态切换、自动演示、⌘K 入口
+   ============================================================ */
+
+.state-dock { position: absolute; left: 50%; bottom: 66px; z-index: 4; transform: translateX(-50%); width: min(880px, calc(100vw - 32px)); padding: 8px 9px 8px 13px; display: flex; align-items: center; gap: 15px; border: 1px solid rgba(236,255,245,.17); border-radius: 18px; background: rgba(16, 30, 26, .56); box-shadow: 0 15px 40px rgba(1,8,6,.2), inset 0 1px rgba(255,255,255,.1); backdrop-filter: blur(24px) saturate(130%); }
+.dock-label { flex: 0 0 auto; display: flex; gap: 7px; align-items: center; color: #d6ede2; font-size: 10px; font-weight: 700; white-space: nowrap; }
+.dock-mark { color: #affce1; display: grid; place-items: center; }
+.state-tabs { flex: 1; min-width: 0; display: grid; grid-template-columns: repeat(8, 1fr); gap: 3px; padding: 3px; border-radius: 12px; background: rgba(5,17,13,.24); }
+.state-tab { min-width: 0; height: 32px; padding: 0 7px; display: flex; justify-content: center; align-items: center; gap: 6px; border: 0; border-radius: 9px; color: #9eb5aa; font-size: 10px; background: transparent; cursor: pointer; transition: color .2s, background .24s, box-shadow .24s; }
+.state-tab:hover { color: #e2f4eb; }
+.state-tab.active { color: #edf9f3; background: rgba(212,250,231,.14); box-shadow: inset 0 1px rgba(255,255,255,.16), 0 3px 8px rgba(0,0,0,.12); }
+.state-tab-dot { width: 5px; height: 5px; flex: 0 0 5px; border-radius: 99px; background: #72ddbf; }
+.state-tab-dot--mint { background: #70d99d; }
+.state-tab-dot--coral { background: #f2a27b; }
+.state-tab-dot--lime { background: #9ee084; }
+.state-tab-dot--amber { background: #f0c46e; }
+.state-tab-dot--slate { background: #9db9c9; }
+.state-tab-dot--violet { background: #cfa8f5; }
+.state-tab-dot--rose { background: #f0a5ba; }
+
+/* 演示坞动作（自动演示 / ⌘K） */
+.dock-actions { flex: 0 0 auto; display: flex; gap: 7px; }
+.demo-button, .palette-trigger { height: 32px; border: 1px solid rgba(236,255,245,.16); border-radius: 10px; background: rgba(255,255,255,.05); color: #cfe4da; font-size: 10px; font-weight: 700; cursor: pointer; transition: background .2s, border-color .2s, color .2s; }
+.demo-button:hover, .palette-trigger:hover { background: rgba(255,255,255,.1); }
+.demo-button { padding: 0 11px; }
+.demo-button--live { color: #ffd9b0; border-color: rgba(255,180,120,.42); background: rgba(140,70,20,.22); }
+.palette-trigger { padding: 0 10px; font-family: "SF Mono", ui-monospace, monospace; }

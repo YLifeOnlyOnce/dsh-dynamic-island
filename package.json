@@ -1,23 +1,67 @@
 {
   "name": "dsh-dynamic-island",
-  "private": true,
-  "version": "0.0.0",
+  "description": "Liquid Glass Dynamic Island for the DeepSeek Harness Web GUI — a dual-face shell.overlay client plugin (design prototype + plugin in one repo)",
+  "version": "0.2.0",
   "type": "module",
+  "main": "./src/index.js",
+  "exports": {
+    ".": "./src/index.js",
+    "./client": {
+      "default": "./lib/client.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "inject": [
+        "@deepseek-ai/dsh-client-runtime",
+        "@deepseek-ai/dsh-client-locale",
+        "@deepseek-ai/dsh-client-ui-slots",
+        "@deepseek-ai/dsh-client-ui-model-selection"
+      ],
+      "platform": "web"
+    }
+  },
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "lint": "oxlint",
-    "preview": "vite preview"
+    "build:plugin": "node scripts/build-plugin.mjs",
+    "prepack": "npm run build:plugin",
+    "preview": "vite preview",
+    "lint": "oxlint"
   },
-  "dependencies": {
-    "react": "^19.2.8",
-    "react-dom": "^19.2.8"
+  "peerDependencies": {
+    "react": "^18.2.0 || ^19.0.0",
+    "react-dom": "^18.2.0 || ^19.0.0"
   },
   "devDependencies": {
     "@types/react": "^19.2.17",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.4",
     "oxlint": "^1.75.0",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
     "vite": "^8.2.0"
+  },
+  "files": [
+    "lib/client.js",
+    "cordis.patch.yml",
+    "src/index.js"
+  ],
+  "keywords": [
+    "deepseek-harness",
+    "dsh",
+    "dynamic-island",
+    "plugin",
+    "liquid-glass",
+    "ui"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/YLifeOnlyOnce/dsh-dynamic-island.git"
   }
 }

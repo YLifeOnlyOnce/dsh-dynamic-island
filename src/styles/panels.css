@@ -1,0 +1,103 @@
+/* ============================================================
+   panels.css —— 岛内信息面板：目标环、任务清单、后台任务、
+   结果小票、小票堆、过程活动流与工具卡
+   ============================================================ */
+
+/* ---- 目标进度环（goal） ---- */
+.goal-row { display: flex; align-items: center; gap: 8px; margin: 13px 2px 0; color: #8ce2c3; }
+.goal-row--aqua { color: #8ce2c3; }
+.goal-row--mint { color: #8ce2c3; }
+.goal-row--coral { color: #f5ac85; }
+.goal-row--lime { color: #9ee688; }
+.goal-row--amber { color: #efba64; }
+.goal-row--slate { color: #9db9c9; }
+.goal-row--violet { color: #cfa8f5; }
+.goal-row--rose { color: #f0a5ba; }
+.goal-ring { flex: 0 0 auto; display: block; filter: drop-shadow(0 0 5px currentColor); }
+.goal-title { flex: 1; min-width: 0; color: #cfe4da; font-size: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.goal-round { color: inherit; font: 600 9.5px/1 "SF Mono", ui-monospace, monospace; white-space: nowrap; }
+
+/* ---- Todo 清单点 + 展开按钮（todo/write） ---- */
+.todo-ticker { display: flex; align-items: center; gap: 10px; margin: 13px 2px 0; min-height: 12px; }
+.todo-dots { display: flex; gap: 5px; }
+.todo-dot { width: 5px; height: 5px; border-radius: 99px; background: rgba(242,255,249,.16); transition: background .3s; }
+.todo-dot--done { background: #8ce2c3; box-shadow: 0 0 8px rgba(140,226,195,.55); }
+.todo-dot--active { background: #fff; box-shadow: 0 0 10px rgba(255,255,255,.8); animation: dot-pulse 1.4s ease-in-out infinite; }
+.todo-copy { flex: 1; min-width: 0; color: #a9c2b6; font-size: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.list-toggle { flex: 0 0 auto; display: inline-flex; align-items: center; gap: 5px; padding: 3px 7px; border: 1px solid rgba(236,255,245,.12); border-radius: 8px; color: #a9c2b6; background: rgba(255,255,255,.04); font-size: 9.5px; cursor: pointer; transition: color .2s, background .2s, border-color .2s; }
+.list-toggle:hover { color: #eafff4; background: rgba(255,255,255,.09); }
+
+/* ---- 完整任务清单（三态展开视图） ---- */
+.checklist { display: grid; gap: 3px; margin: 11px 2px 0; padding: 9px 11px; border: 1px solid rgba(236,255,245,.1); border-radius: 12px; background: rgba(10,22,18,.26); animation: content-in .32s cubic-bezier(.2,.9,.18,1) both; }
+.check-item { display: flex; align-items: center; gap: 8px; min-width: 0; color: #a9c2b6; font-size: 10.5px; line-height: 1.9; }
+.check-mark { flex: 0 0 14px; display: grid; place-items: center; width: 14px; height: 14px; border-radius: 5px; font-size: 9px; color: #71857b; background: rgba(255,255,255,.05); border: 1px solid rgba(236,255,245,.12); }
+.check-text { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.check-item--done { color: #7d9a8d; }
+.check-item--done .check-mark { color: #0f3d2c; background: linear-gradient(135deg, #b8f7d2, #7fe0ab); border-color: transparent; }
+.check-item--done .check-text { text-decoration: line-through; text-decoration-color: rgba(140,226,195,.4); }
+.check-item--now { color: #e7f6ee; }
+.check-item--now .check-mark { color: #173c30; background: linear-gradient(135deg, #eafff4, #b9f5d8); border-color: transparent; box-shadow: 0 0 8px rgba(190,255,222,.45); }
+.check-now { flex: 0 0 auto; padding: 1px 7px; border-radius: 99px; color: #bff7d8; background: rgba(90,220,150,.14); border: 1px solid rgba(140,255,190,.2); font-size: 9px; }
+
+/* ---- 后台任务胶囊（jobs） ---- */
+.job-chips { display: flex; flex-wrap: wrap; gap: 7px; margin: 13px 2px 0; }
+.job-chip { display: inline-flex; align-items: center; gap: 6px; padding: 4px 9px; border-radius: 99px; font-size: 9.5px; line-height: 1; border: 1px solid rgba(236,255,245,.14); background: rgba(255,255,255,.05); color: #b9cec3; }
+.job-chip b { font-weight: 600; color: #8ba79b; font-family: "SF Mono", ui-monospace, monospace; }
+.job-name { color: #d9eee4; }
+.job-chip--running { border-color: rgba(140,255,190,.22); color: #bff7d8; }
+.job-chip--running b { color: #8fd8b4; }
+.job-chip--failed { border-color: rgba(255,170,130,.3); color: #ffd9c9; background: rgba(120,45,25,.22); }
+.job-chip--failed b { color: #f0a48a; }
+.job-chip--completed { color: #b6f7cd; }
+.job-spin { width: 7px; height: 7px; border-radius: 50%; border: 1.5px solid rgba(160,255,210,.35); border-top-color: #9df0cb; animation: spin 1s linear infinite; }
+
+/* ---- 小票堆（最近完成） ---- */
+.recent { display: grid; gap: 5px; margin: 13px 2px 0; }
+.recent-head { color: #7d9a8d; font-size: 9.5px; font-weight: 700; letter-spacing: .08em; }
+.recent-item { display: flex; align-items: center; gap: 9px; width: 100%; padding: 7px 10px; border: 1px solid rgba(236,255,245,.1); border-radius: 11px; background: rgba(10,24,16,.24); color: #bdd1c7; font-size: 10.5px; cursor: pointer; text-align: left; transition: border-color .2s, background .2s; }
+.recent-item:hover { border-color: rgba(140,255,190,.26); background: rgba(10,24,16,.4); }
+.recent-item--sel { border-color: rgba(140,255,190,.4); background: rgba(90,220,150,.1); }
+.recent-mark { flex: 0 0 auto; display: grid; place-items: center; width: 16px; height: 16px; border-radius: 50%; color: #0f3d2c; background: linear-gradient(135deg, #b8f7d2, #7fe0ab); font-size: 10px; }
+.recent-title { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.recent-meta { flex: 0 0 auto; color: #7d9a8d; font: 9.5px/1 "SF Mono", ui-monospace, monospace; }
+
+/* ---- 结果小票（turn/end + usage） ---- */
+.receipt-strip { display: flex; flex-wrap: wrap; gap: 7px 15px; margin: 15px 2px 0; padding: 9px 12px; border: 1px solid rgba(236,255,245,.1); border-radius: 12px; background: rgba(10,24,16,.24); }
+.receipt-strip span { color: #aac6b9; font-size: 10px; }
+.receipt-strip b { color: #e9fff2; font-weight: 700; }
+
+/* ---- 过程活动流（step / tool / todo / text / system / receipt） ---- */
+.activity-feed { margin-top: 13px; padding-top: 12px; max-height: 218px; overflow-y: auto; display: grid; gap: 8px; border-top: 1px solid rgba(236,255,245,.1); scrollbar-width: thin; scrollbar-color: rgba(255,255,255,.18) transparent; animation: content-in .4s cubic-bezier(.2,.9,.18,1) both; touch-action: pan-y; }
+.activity-feed::-webkit-scrollbar { width: 4px; }
+.activity-feed::-webkit-scrollbar-thumb { background: rgba(255,255,255,.18); border-radius: 99px; }
+.feed-item { display: flex; gap: 8px; align-items: flex-start; font-size: 10.5px; line-height: 1.45; color: #b9cec3; animation: feed-in .32s ease both; }
+.feed-item-mark { width: 6px; height: 6px; margin-top: 4px; border-radius: 50%; flex: 0 0 6px; background: #6fc9ab; }
+.feed-item--done .feed-item-mark { background: #9ee688; box-shadow: 0 0 7px rgba(158,230,136,.5); }
+.feed-item--active .feed-item-mark { background: #fff; box-shadow: 0 0 8px rgba(255,255,255,.8); }
+.feed-item--reasoning .feed-item-mark { background: #7fd8e8; }
+.feed-item--answer .feed-item-mark { background: #9ce0cf; }
+.feed-item--system { color: #8ba79b; font-style: italic; }
+.feed-item--system .feed-item-mark { background: transparent; box-shadow: inset 0 0 0 1px rgba(255,255,255,.3); }
+.feed-item-mark--receipt { background: #b6f7cd; box-shadow: 0 0 8px rgba(182,247,205,.7); }
+.feed-step { color: #cfe8dd; font-weight: 700; }
+.feed-receipt { color: #b6f7cd; font-weight: 700; }
+
+/* 工具命令卡（tool/call → tool/result） */
+.feed-item--tool { gap: 9px; }
+.feed-tool { flex: 1; min-width: 0; display: grid; gap: 6px; padding: 8px 10px; border: 1px solid rgba(236,255,245,.12); border-radius: 11px; background: rgba(10,22,18,.32); }
+.feed-tool-head { display: flex; justify-content: space-between; gap: 10px; align-items: center; }
+.feed-tool-name { color: #d9eee4; font: 700 10px/1 "SF Mono", ui-monospace, monospace; letter-spacing: .02em; white-space: nowrap; }
+.exit-pill { padding: 2.5px 7px; border-radius: 99px; font: 600 9px/1.2 "SF Mono", ui-monospace, monospace; white-space: nowrap; }
+.exit-pill--ok { color: #bdfad3; background: rgba(90,220,150,.14); border: 1px solid rgba(140,255,190,.22); }
+.exit-pill--err { color: #ffd9c9; background: rgba(240,130,90,.16); border: 1px solid rgba(255,170,130,.3); }
+.exit-pill--pending { color: #ffe0b8; background: rgba(240,170,90,.15); border: 1px solid rgba(255,200,140,.3); }
+.feed-tool-args { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.feed-tool-args code { flex: 1; min-width: 0; color: #9fc4b4; font: 10px/1.45 "SF Mono", ui-monospace, monospace; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.copy-button { flex: 0 0 auto; width: 20px; height: 20px; display: grid; place-items: center; border: 0; border-radius: 6px; color: #9fc4b4; background: transparent; cursor: pointer; transition: background .15s, color .15s; }
+.copy-button:hover { background: rgba(255,255,255,.1); color: #eafff4; }
+.copy-button.copied { color: #b6f7cd; }
+.feed-tool-meta { display: flex; gap: 10px; color: #7d9a8d; font: 9.5px/1 "SF Mono", ui-monospace, monospace; }
+
+/* 动画 */
+@keyframes feed-in { from { opacity: 0; transform: translateY(4px); } }
+@keyframes dot-pulse { 0%, 100% { transform: scale(1); opacity: .85; } 50% { transform: scale(1.45); opacity: 1; } }

@@ -1,0 +1,13 @@
+# dsh-dynamic-island bundle patch.
+# 把灵动岛作为一行浏览器插件插入 web 档案的 browser roster。
+# 这是 dsh.client 行：node 半场（src/index.js）让包成为 loader entry，
+# modules node half 扫描到 dsh.client 声明后把它编入 window.__DSH_BOOT__，
+# 并在 /plugins/dsh-dynamic-island/client.js 提供浏览器 bundle（lib/client.js）。
+#
+# 用户也可不装本 bundle，只在自己的 profile cordis.patch.yml 里 insert 同一行：
+#   - insert:
+#       - id: ui-dynamic-island
+#         name: 'dsh-dynamic-island'
+- insert:
+    - id: ui-dynamic-island
+      name: 'dsh-dynamic-island'

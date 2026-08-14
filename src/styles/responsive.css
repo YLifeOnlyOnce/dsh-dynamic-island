@@ -1,0 +1,50 @@
+/* ============================================================
+   responsive.css —— 断点与无障碍动效偏好
+   ============================================================ */
+
+@media (max-width: 800px) {
+  .workspace { inset: 55px 12px 32px; grid-template-columns: 44px 1fr; }
+  .file-panel, .inspector { display: none; }
+  .topbar { padding-inline: 17px; }
+  .wordmark { font-size: 11px; }
+  .project-pill { display: none; }
+  .top-actions { grid-column: 3; }
+  .stage { padding-top: 150px; align-items: start; }
+  .state-dock { bottom: 53px; gap: 8px; padding-left: 10px; }
+  .dock-label { width: 21px; font-size: 0; }
+  .dock-actions { display: none; }
+  .state-tab { font-size: 0; }
+  .state-tab-dot { width: 8px; height: 8px; }
+  .statusbar { padding-inline: 14px; gap: 12px; }
+  .statusbar span:nth-child(2) { display: none; }
+}
+
+@media (max-width: 500px) {
+  .stage { padding-inline: 14px; padding-top: 121px; }
+  .island-content { padding: 17px 16px 15px; }
+  .island-main { gap: 10px; }
+  .core-wrap { flex-basis: 49px; transform: scale(.8); transform-origin: center; }
+  .task-copy h1 { font-size: 14px; }
+  .task-copy p { font-size: 9px; }
+  .close-button { display: none; }
+  .island-footer, .approval-row { align-items: flex-end; }
+  .approval-row { flex-direction: column; align-items: stretch; gap: 10px; }
+  .approval-actions { justify-content: flex-end; }
+  .state-dock { width: calc(100vw - 22px); }
+  .statusbar span:last-child { font-size: 9px; }
+  .workspace { opacity: .52; }
+  .code { padding-left: 10px; }
+  .editor-tabs .tab:not(.active) { display: none; }
+  .model-chip { display: none; }
+  .activity-feed { max-height: 160px; }
+  .footer-right { gap: 7px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

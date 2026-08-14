@@ -45,11 +45,14 @@ This is **not** an unrelated desktop pet. Every shape change comes from real Har
 
 | Mood | The vibe | Tone |
 |---|---|---|
+| 🛰️ Idle | `agent/status: idle` — a quiet dot that says "ready when you are" | slate |
 | 🧠 Thinking | Breathing core; capsule shows the current task & step | aqua |
 | 🛠️ Working | Teal pulse while a tool runs — name and progress on screen | mint |
 | 🫵 Approval | Warm coral edge — expands with real 批准 / 暂不 buttons | coral |
-| ✅ Complete | A soft refractive highlight + a tiny result receipt | lime |
+| ✅ Complete | A soft refractive highlight + a result receipt + a stack of recent wins | lime |
 | ⚠️ Alert | Orange pause — failure summary and a way back in | amber |
+| 🔒 Blocked | `turn/end {blocked}` — the goal paused, waiting for you to unblock | violet |
+| ✂️ Max-tokens | `turn/end {max-tokens}` — output truncated, ask it to continue | rose |
 
 ## 🔌 How it talks to DeepSeek Harness
 
@@ -57,13 +60,33 @@ The concept maps each Harness signal to one island mood — a narrow, versionabl
 
 | Island mood | DSH signal |
 |---|---|
-| `thinking` | `agent/status: running`, `step/start`, LLM streaming begins |
-| `working` | `session/event: tool/call` → the matching `tool/result` |
+| `idle` | `agent/status: idle` |
+| `thinking` | `agent/status: running`, `step/start`, `assistant/chunk` (reasoning-delta) |
+| `working` | `tool/call` → the matching `tool/result` (incl. `error` / `meta`) |
 | `approval` | a pending approval in the composer |
-| `complete` | a successful `turn/end` |
-| `alert` | `tool/result` error, `agent/request-error` |
+| `complete` | a successful `turn/end` + `assistant/message.usage` |
+| `alert` | `tool/result` error, `agent/request-error`, `turn/end {error}` |
+| `blocked` | `turn/end {blocked}` |
+| `max-tokens` | `turn/end {max-tokens}` |
+
+On top of the eight moods, each state also carries **payload fields** (stream, tool cards, receipt, goal, todos, jobs):
+
+| Island element | DSH signal |
+|---|---|
+| Streaming preview (reasoning vs. answer tinted) | `assistant/chunk` (`text-delta` / `reasoning-delta`) |
+| Tool-command cards (exit code / duration / copy) | `tool/call.arguments` + `tool/result` |
+| Result receipt (files / checks / tokens / duration) | `turn/end.reason` + `assistant/message.usage` |
+| Goal progress ring | goal package: `roundsStarted` / round cap |
+| Todo ticker + three-state checklist | `todo/write` (whole-list snapshot, last-write-wins) |
+| Background job chips | jobs package: `running \| stopping \| completed \| killed \| failed` + `detail` |
+| Recent-wins receipt stack | `turn/end` sequence |
+| Model badge | `request/context` (provider · model) |
+| Stop / retry / unblock / continue | `agent/turn-stopping` / `agent/request` / goal unblock / turn resume |
+| Subagent note | `subagent/start` / `subagent/end` |
 
 > Replay & persistence read `session/event`; live interaction reads `agent/*`. A production plugin still needs to pin down the client slot/connection injection points — and rules for no active session, a dropped stream, parallel sessions, and HMR reloads. That work is tracked on the [roadmap](#-roadmap).
+>
+> The full "what DSH needs × what the signal layer can do × how the island shows it" analysis lives in [docs/analysis.md](docs/analysis.md).
 
 ## 🚀 Run it
 
@@ -72,7 +95,33 @@ npm install
 npm run dev
 ```
 
-Open the address Vite prints — the `灵动岛演示` dock at the bottom flips between the five moods. In **approval**, hit 批准 / 暂不 and watch the island reflect the result instantly.
+Open the address Vite prints — the `灵动岛演示` dock at the bottom flips between the eight moods:
+
+- In **approval**, hit 批准 / 暂不 and watch the island reflect the result instantly;
+- Hit 查看过程 to expand the in-island activity feed: tool cards with exit code, duration, and a one-click copy of the command;
+- Hit 清单 to expand the full three-state task checklist; the goal ring shows goal round progress;
+- **Stop** while working, **retry** on alert, **unblock** when blocked, **continue** past max-tokens;
+- **Drag** the island from any blank spot to reposition it — the spot is remembered across reloads;
+- Press **⌘K** (or Ctrl+K) for the command palette — type to filter, ↑↓ to move, ↵ to run;
+- Hit ▶ 自动演示 to watch the whole arc — idle → thinking → working → approval (auto-approved) → complete — and press **Esc** to tuck the island away at any time.
+
+## 🔌 Integrating into DSH (plugin)
+
+This project **is** a DSH client plugin — the repo root is the dual-face package, install it straight into your `web` profile:
+
+```sh
+npm install && npm run build:plugin      # emit lib/client.js (loader-compliant bundle)
+dsh plugin --profile web add /path/to/this-repo
+dsh --profile web                        # restart → island floats over the GUI
+```
+
+Every mechanism is verified against the DeepSeek Harness source:
+
+- **Mount point**: the Web GUI's `shell.overlay` floating slot (ui-layout's additive list seat reserved for frame-wide overlays — badges, toasts, status pills — currently with zero registrants). No changes to `apps/web` are needed.
+- **Shape**: dual-face npm package — `dsh.client` declaration + `exports["./client"]` browser half (`lib/client.js`, built by `scripts/build-plugin.mjs` as a `__ModuleLoader__.load` closure factory with platform-table externs) + an empty node half (`src/index.js`). Installed with one command, `dsh plugin --profile web add <pkg>`.
+- **Data**: the browser half subscribes `ctx.sessions.currentProvideInfo` → session snapshot + projections (`goal`, `todos`, `tokenUsage`, `contextPressure`, `permissions`) → `src/plugin/protocol.js` derives the island model → the **same** `src/components` React tree renders it (demo and plugin share one UI).
+
+In-repo pieces: `src/client/` (browser half: `index.js`, `IslandDock.jsx`, `island-store.js`, `live-bridge.js`, `styles.js`, `locales.js`), `src/index.js` (node half), `cordis.patch.yml`, `src/plugin/protocol.js` (protocol adapter). The full blueprint, dev workflow, and honest gaps live in [`docs/integration.md`](docs/integration.md).
 
 ## 🧱 Built with
 
@@ -82,12 +131,17 @@ Open the address Vite prints — the `灵动岛演示` dock at the bottom flips 
 
 ## 🗺️ Roadmap
 
-- [x] Five-state island with Liquid Glass looks
+- [x] Eight-state island with Liquid Glass looks (incl. idle / blocked / max-tokens)
 - [x] Synchronized approval actions (a mirror of the native input area)
-- [ ] Streaming output preview as the agent writes
-- [ ] Tool-command cards (exit code, duration, copy)
-- [ ] Result receipts (files changed, checks passed)
-- [ ] A real `dsh-dynamic-island` plugin for DeepSeek Harness 🚀
+- [x] Streaming output preview (`assistant/chunk`, reasoning vs. answer tinted)
+- [x] Tool-command cards (exit code, duration, copy)
+- [x] Result receipts (files, checks, tokens, duration) + recent-wins receipt stack
+- [x] Goal progress ring + full task checklist (goal, `todo/write`)
+- [x] Background job chips (jobs) + model badge (`request/context`)
+- [x] ⌘K command palette + auto-play demo
+- [x] Integration blueprint + plugin skeleton (repo root is the dual-face client package)
+- [x] `build:plugin` emits the loader-compliant bundle; smoke-tested (handshake / factory / apply / bridge / verbs)
+- [ ] Real-GUI integration pass (live-bridge on-device check + retry/continue/unblock/approve wired to real remotes) 🚀
 
 ## 💛 Keep the island in orbit
 

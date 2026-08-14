@@ -41,15 +41,18 @@
 - ♿ **无障碍、有礼貌** —— 尊重 `prefers-reduced-motion`，不单靠颜色表达状态，审批按钮永远是真实可点的按钮。
 - 🌱 **零运行时依赖** —— React + 一点点 CSS，仅此而已。
 
-## 🎨 五种心情
+## 🎨 八种心情
 
 | 心情 | 感觉 | 色调 |
 |---|---|---|
+| 🛰️ 待命 | `agent/status: idle` 时的安静小点——「随时吩咐」 | slate |
 | 🧠 思考 | 核心轻轻呼吸；胶囊显示当前任务和步骤 | aqua |
 | 🛠️ 执行 | 青绿脉冲——工具名和进度实时显示 | mint |
 | 🫵 确认 | 暖珊瑚边缘——展开真实的「批准 / 暂不」按钮 | coral |
-| ✅ 完成 | 一抹柔和的折射高光 + 一张小小的结果收据 | lime |
+| ✅ 完成 | 一抹柔和的折射高光 + 结果小票 + 最近完成堆 | lime |
 | ⚠️ 异常 | 橙色停顿——失败摘要和回到正轨的入口 | amber |
+| 🔒 阻塞 | `turn/end {blocked}`——目标暂停，等你解除 | violet |
+| ✂️ 上限 | `turn/end {max-tokens}`——输出被截断，可续跑 | rose |
 
 ## 🔌 它怎么和 DeepSeek Harness 对话
 
@@ -57,13 +60,33 @@
 
 | 岛的心情 | DSH 信号 |
 |---|---|
-| `thinking` | `agent/status: running`、`step/start`、LLM 流开始 |
-| `working` | `session/event: tool/call` → 对应的 `tool/result` |
+| `idle` | `agent/status: idle` |
+| `thinking` | `agent/status: running`、`step/start`、`assistant/chunk`（reasoning-delta） |
+| `working` | `tool/call` → 对应的 `tool/result`（含 `error` / `meta`） |
 | `approval` | 输入区有待处理的审批 |
-| `complete` | `turn/end` 成功结束 |
-| `alert` | `tool/result` error、`agent/request-error` |
+| `complete` | `turn/end` 成功结束 + `assistant/message.usage` |
+| `alert` | `tool/result` error、`agent/request-error`、`turn/end {error}` |
+| `blocked` | `turn/end {blocked}` |
+| `max-tokens` | `turn/end {max-tokens}` |
+
+八态之上，每个心情还带**载荷字段**（流式预览、工具卡、小票、目标、清单、后台任务）：
+
+| 岛上元素 | DSH 信号 |
+|---|---|
+| 流式预览行（思考/正文分色） | `assistant/chunk`（`text-delta` / `reasoning-delta`） |
+| 工具命令卡（退出码 / 耗时 / 复制） | `tool/call.arguments` + `tool/result` |
+| 结果小票（文件 / 检查 / tokens / 用时） | `turn/end.reason` + `assistant/message.usage` |
+| 目标进度环 | goal 包：`roundsStarted` / 轮次上限 |
+| 任务清单点 + 三态清单 | `todo/write`（整表快照，last-write-wins） |
+| 后台任务胶囊 | jobs 包：`running \| stopping \| completed \| killed \| failed` + `detail` |
+| 小票堆（最近完成） | `turn/end` 序列 |
+| 模型徽章 | `request/context`（provider · model） |
+| 停止 / 重试 / 解除阻塞 / 续跑 | `agent/turn-stopping` / `agent/request` / goal 解除 / turn 续跑 |
+| 子代理注记 | `subagent/start` / `subagent/end` |
 
 > 回放与持久化读 `session/event`；实时交互读 `agent/*`。正式插件还需要敲定当前版本允许的 client slot/connection 注入点——以及没有活动会话、事件流断开、多会话并行、HMR 重载这些边角规则。这些都在[路线图](#-路线图)上。
+>
+> 完整的「DSH 需要什么 × 信号层能不能做到 × 岛怎么呈现」分析见 [docs/analysis.md](docs/analysis.md)。
 
 ## 🚀 跑起来
 
@@ -72,7 +95,41 @@ npm install
 npm run dev
 ```
 
-打开 Vite 打印的地址——底部 `灵动岛演示` 栏可以切换五种心情。在**确认**状态点「批准 / 暂不」，看小岛瞬间同步反映结果。
+打开 Vite 打印的地址——底部 `灵动岛演示` 栏可以切换八种心情：
+
+- **确认**状态点「批准 / 暂不」，看小岛瞬间同步反映结果；
+- 点「查看过程」展开岛内活动流：工具卡带退出码、耗时，还能一键复制命令；
+- 点「清单」展开完整任务清单（三态勾选）；目标进度环显示 goal 轮次；
+- **执行**态可点「停止」，**异常**态可点「重试」，**阻塞**态可点「解除阻塞」，**上限**态可点「继续」；
+- 按住岛任意空白处可**拖拽**到任意位置（位置会记住，刷新后仍在）；
+- 按 **⌘K**（或 Ctrl+K）打开命令面板，输入过滤、↑↓ 选择、↵ 执行；
+- 点「▶ 自动演示」完整看一遍 待命 → 思考 → 执行 → 确认（自动批准）→ 完成 的弧线，按 **Esc** 随时收起。
+
+## 🔌 集成进 DSH（插件化）
+
+这个项目**就是**一枚 DSH 客户端插件 —— 仓库根即双面包插件包，直接装进你的 `web` profile：
+
+```sh
+npm install && npm run build:plugin      # 产出 lib/client.js（loader 合规 bundle）
+dsh plugin --profile web add /path/to/this-repo
+dsh --profile web                        # 重启 → 岛浮现在 GUI 上
+```
+
+机制已全部对照 DeepSeek Harness 源码核实：
+
+- **注入点**：Web GUI 的 `shell.overlay` 浮层槽（ui-layout 专门为全屏浮层预留的
+  加性 list 槽，目前零注册者），无需修改 apps/web 源码；
+- **形态**：双面包 npm 包 —— `dsh.client` 声明 + `exports["./client"]` 浏览器半场
+  （`lib/client.js`，`scripts/build-plugin.mjs` 产出 `__ModuleLoader__.load` 闭包工厂
+  + 平台模块表 extern）+ 空 node 半场（`src/index.js`），`dsh plugin --profile web add <pkg>` 一条命令安装；
+- **数据**：浏览器半场订阅 `ctx.sessions.currentProvideInfo` → 会话快照 + 投影
+  （goal、todos、tokenUsage、contextPressure、permissions）→ `src/plugin/protocol.js`
+  派生成岛模型 → **同一套** `src/components` React 组件渲染（demo 与插件共用一份 UI）。
+
+仓库内已就位：`src/client/`（浏览器半场：index / IslandDock / island-store / live-bridge /
+styles / locales）、`src/index.js`（node 半场）、`cordis.patch.yml`、
+`src/plugin/protocol.js`（协议适配层）。完整方案、开发工作流与已知缺口见
+[`docs/integration.md`](docs/integration.md)。
 
 ## 🧱 技术栈
 
@@ -82,12 +139,17 @@ npm run dev
 
 ## 🗺️ 路线图
 
-- [x] 五种状态的 Liquid Glass 灵动岛
+- [x] 八种状态的 Liquid Glass 灵动岛（含待命 / 阻塞 / 上限）
 - [x] 同步的审批操作（原生输入区的镜像）
-- [ ] Agent 写作时的流式输出预览
-- [ ] 工具命令卡片（退出码、耗时、复制）
-- [ ] 结果收据（改了几个文件、过了几个检查）
-- [ ] 真正的 `dsh-dynamic-island` 插件 🚀
+- [x] 流式输出预览（`assistant/chunk`，思考/正文分色）
+- [x] 工具命令卡片（退出码、耗时、复制）
+- [x] 结果收据（文件、检查、tokens、用时）+ 最近完成小票堆
+- [x] 目标进度环 + 完整任务清单（goal、`todo/write`）
+- [x] 后台任务胶囊（jobs）+ 模型徽章（`request/context`）
+- [x] ⌘K 命令面板 + 自动演示
+- [x] 集成方案与插件骨架（仓库根即双面包客户端插件）
+- [x] `build:plugin` 产出 loader 合规 bundle，冒烟通过（握手 / 工厂 / apply / 桥派生 / 动作面）
+- [ ] 真实 GUI 联调（桥实机核对 + retry/continue/unblock/approve 接上真实远端）🚀
 
 ## 💛 让小岛留在轨道上
 

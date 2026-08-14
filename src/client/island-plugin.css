@@ -1,0 +1,58 @@
+/* ============================================================
+   island-plugin.css —— 插件态覆盖：浮层定位 + 动效偏好
+   ============================================================ */
+
+/* 浮层：固定在工作区右上角（shell.overlay 层内，点击穿透由层控制，
+   岛自身恢复指针事件）。可拖拽 + 位置记忆（useDraggable）。 */
+.island-float {
+  position: fixed;
+  top: 24px;
+  right: 24px;
+  z-index: 40;
+  width: min(480px, calc(100vw - 32px));
+  pointer-events: auto;
+  cursor: grab;
+  touch-action: none;
+}
+
+.island-float.is-dragging {
+  cursor: grabbing;
+  user-select: none;
+}
+
+/* 岛内可滚动区域保留纵向触摸滚动（拖拽判定从其余区域发起） */
+.island-float .activity-feed,
+.island-float .checklist {
+  touch-action: pan-y;
+}
+
+.island-float .island {
+  width: 100%;
+}
+
+.island-float .island--compact {
+  width: 76px;
+  height: 76px;
+}
+
+@media (max-width: 600px) {
+  .island-float {
+    top: 12px;
+    right: 12px;
+    width: calc(100vw - 24px);
+  }
+  .island-float .activity-feed {
+    max-height: 140px;
+  }
+}
+
+/* 动效偏好：与演示一致地尊重减少动效 */
+@media (prefers-reduced-motion: reduce) {
+  .island-float *,
+  .island-float *::before,
+  .island-float *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+  }
+}
