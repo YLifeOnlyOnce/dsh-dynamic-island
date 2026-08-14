@@ -43,13 +43,9 @@ export function IslandDock({ useStore, islandActions, t }) {
       startDemo: () => {},
       stopDemo: () => {},
       handleApproval(value) {
-        // 镜像入口：真实审批经快照 pending 交互的 respond() 回执，
-        // 与原生 composer 同一通道——原生面已结算时岛如实提示、不重复回执。
+        // 插件模式已移除审批面（ignoreApproval）——此路径不可达，仅保留兜底反馈。
         setApproved(value)
-        const handled = islandActions?.respondApproval?.(value) ?? true
-        appendFeed(handled
-          ? (value ? '已批准 · 原生输入栏同步生效' : '已暂缓 · 方案保留')
-          : '审批已在原生面处理 · 岛不再重复回执')
+        appendFeed(value ? '已批准 · 原生输入栏同步生效' : '已暂缓 · 方案保留')
       },
       handleStop() {
         mark('stopping', true)

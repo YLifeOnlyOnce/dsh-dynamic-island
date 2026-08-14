@@ -67,6 +67,7 @@ export function deriveMood({
   model,
   lastReason,
   jobs,
+  ignoreApproval = false,
 } = {}) {
   const {
     running = false,
@@ -85,8 +86,11 @@ export function deriveMood({
   } = projections
 
   // ── 审批：快照 pending 里有 kind === 'approval' 的挂起交互（真实信号）──
-  const approvalPending = Array.isArray(pending) && pending.some(p => p && p.kind === 'approval')
-  const approvalItem = Array.isArray(pending)
+  // ignoreApproval=true（插件模式）时不渲染审批面 —— 审批完全交给原生输入栏。
+  const approvalPending = !ignoreApproval
+    && Array.isArray(pending)
+    && pending.some(p => p && p.kind === 'approval')
+  const approvalItem = approvalPending && Array.isArray(pending)
     ? pending.find(p => p && p.kind === 'approval')
     : undefined
 
