@@ -124,6 +124,40 @@
 @keyframes toast { from { opacity: 0; transform: translate(-50%, -6px); } to { opacity: 1; transform: translate(-50%, 0); } }
 @keyframes caret-blink { 50% { opacity: 0; } }
 
-/* 运行中且无真实进度（如无 todo 投影）时：不确定进度条流动动画 */
-.progress-line--live span { width: 38% !important; animation: progress-slide 1.4s cubic-bezier(.4,0,.2,1) infinite; }
-@keyframes progress-slide { 0% { transform: translateX(-140%); } 100% { transform: translateX(340%); } }
+/* 运行中且无真实进度（如无 todo 投影）时：液态流光彗星
+   暗轨呼吸微光 + 渐变拖尾（transparent→柔光→亮核）+ 亮核光点扫过 */
+.progress-line--live {
+  background: linear-gradient(90deg, transparent, rgba(150, 235, 200, .18), transparent) 0 0 / 220% 100%, rgba(242, 255, 249, .14);
+  animation: progress-track-shimmer 3s ease-in-out infinite;
+}
+.progress-line--live span {
+  width: 150px !important;
+  inset: 0 auto 0 auto !important;
+  left: -30%;
+  border-radius: 999px;
+  transition: none;
+  background: linear-gradient(90deg, transparent, rgba(133, 234, 208, .22) 40%, #8ff0c9 85%, #f2fff9 100%);
+  animation: progress-comet 1.9s cubic-bezier(.6, .04, .32, 1) infinite;
+}
+.progress-line--live span::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #f2fff9;
+  box-shadow: 0 0 8px 2px rgba(213, 255, 225, .95), 0 0 22px 8px rgba(133, 234, 208, .55);
+}
+@keyframes progress-comet {
+  0%   { left: -32%; opacity: 0; }
+  8%   { opacity: 1; }
+  88%  { opacity: 1; }
+  100% { left: 106%; opacity: 0; }
+}
+@keyframes progress-track-shimmer {
+  0%, 100% { background-position: 130% 0; opacity: .7; }
+  50%      { background-position: -30% 0; opacity: 1; }
+}
