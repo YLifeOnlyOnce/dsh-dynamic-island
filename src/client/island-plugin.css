@@ -64,69 +64,78 @@
 /* ============================================================
    浅色主题适配（GUI 的 body[data-ds-dark-theme] 深色标记缺省即浅色）
    仅作用于插件浮层 .island-float —— demo 的深色展示不受影响。
+   原则：深色文字高对比 + 内层面板实心白底/描边/阴影，层级分明。
    ============================================================ */
 body:not([data-ds-dark-theme]) .island-float .island {
-  background: linear-gradient(125deg, rgba(255,255,255,.9), rgba(234,243,238,.74));
-  border-color: rgba(28,60,48,.16);
-  box-shadow: 0 28px 70px rgba(15,45,35,.16), inset 0 1px 1px rgba(255,255,255,.95), inset 0 -1px 1px rgba(30,80,60,.07);
+  background: linear-gradient(125deg, #ffffff, #eef5f0);
+  border-color: rgba(24, 58, 46, .3);
+  box-shadow: 0 32px 80px rgba(12, 42, 32, .3), inset 0 1px 1px rgba(255,255,255,1), inset 0 -1px 1px rgba(24,64,48,.1);
 }
-body:not([data-ds-dark-theme]) .island-float .island::before { opacity: .5; }
-/* 主卡 */
-body:not([data-ds-dark-theme]) .island-float .task-copy h1 { color: #15352b; }
-body:not([data-ds-dark-theme]) .island-float .task-topline { color: #2c4f42; }
-body:not([data-ds-dark-theme]) .island-float .task-step { color: #527467; }
-body:not([data-ds-dark-theme]) .island-float .task-copy p { color: #47655a; }
-body:not([data-ds-dark-theme]) .island-float .model-chip { color: #3c5f52; border-color: rgba(28,70,55,.16); background: rgba(255,255,255,.7); }
-body:not([data-ds-dark-theme]) .island-float .close-button { color: #4a685c; }
-body:not([data-ds-dark-theme]) .island-float .close-button:hover { background: rgba(28,70,55,.08); }
+body:not([data-ds-dark-theme]) .island-float .island::before { opacity: .45; }
+/* 主卡文字（加深） */
+body:not([data-ds-dark-theme]) .island-float .task-copy h1 { color: #0d2b21; }
+body:not([data-ds-dark-theme]) .island-float .task-topline { color: #1d4234; }
+body:not([data-ds-dark-theme]) .island-float .task-step { color: #3c5c4e; }
+body:not([data-ds-dark-theme]) .island-float .task-copy p { color: #34544a; }
+body:not([data-ds-dark-theme]) .island-float .model-chip { color: #2c5244; border-color: rgba(24,64,50,.3); background: #fff; box-shadow: 0 1px 3px rgba(20,55,42,.1); }
+body:not([data-ds-dark-theme]) .island-float .close-button { color: #3c5c4e; }
+body:not([data-ds-dark-theme]) .island-float .close-button:hover { background: rgba(24,64,50,.1); }
 /* 进度条 */
-body:not([data-ds-dark-theme]) .island-float .progress-line { background: rgba(25,70,55,.12); }
+body:not([data-ds-dark-theme]) .island-float .progress-line { background: rgba(24,64,50,.2); }
 /* 目标行 */
-body:not([data-ds-dark-theme]) .island-float .goal-title { color: #3a5c4f; }
+body:not([data-ds-dark-theme]) .island-float .goal-title { color: #27493c; }
 /* todo */
-body:not([data-ds-dark-theme]) .island-float .todo-copy { color: #47655a; }
-body:not([data-ds-dark-theme]) .island-float .todo-dot { background: rgba(25,70,55,.16); }
-body:not([data-ds-dark-theme]) .island-float .list-toggle { color: #47655a; border-color: rgba(28,70,55,.16); background: rgba(255,255,255,.55); }
-body:not([data-ds-dark-theme]) .island-float .list-toggle:hover { color: #17382c; background: rgba(255,255,255,.85); }
-/* 清单 */
-body:not([data-ds-dark-theme]) .island-float .checklist { background: rgba(255,255,255,.6); border-color: rgba(28,70,55,.14); }
-body:not([data-ds-dark-theme]) .island-float .check-item { color: #3d5c50; }
-body:not([data-ds-dark-theme]) .island-float .check-item--done { color: #749086; }
-body:not([data-ds-dark-theme]) .island-float .check-mark { color: #5a7a6c; background: rgba(255,255,255,.75); border-color: rgba(28,70,55,.16); }
-body:not([data-ds-dark-theme]) .island-float .check-now { color: #1e7a4e; background: rgba(90,220,150,.2); border-color: rgba(60,170,110,.3); }
+body:not([data-ds-dark-theme]) .island-float .todo-copy { color: #34544a; }
+body:not([data-ds-dark-theme]) .island-float .todo-dot { background: rgba(24,64,50,.26); }
+body:not([data-ds-dark-theme]) .island-float .list-toggle { color: #2c5244; border-color: rgba(24,64,50,.28); background: #fff; box-shadow: 0 1px 3px rgba(20,55,42,.08); }
+body:not([data-ds-dark-theme]) .island-float .list-toggle:hover { color: #0d2b21; background: #f2faf5; }
+/* 内层面板：实心白底 + 描边 + 阴影（层级突出） */
+body:not([data-ds-dark-theme]) .island-float .checklist,
+body:not([data-ds-dark-theme]) .island-float .receipt-strip,
+body:not([data-ds-dark-theme]) .island-float .feed-tool,
+body:not([data-ds-dark-theme]) .island-float .recent-item,
+body:not([data-ds-dark-theme]) .island-float .job-chip {
+  background: #ffffff;
+  border-color: rgba(24, 64, 50, .22);
+  box-shadow: 0 2px 6px rgba(20, 55, 42, .1);
+}
+body:not([data-ds-dark-theme]) .island-float .check-item { color: #27493c; }
+body:not([data-ds-dark-theme]) .island-float .check-item--done { color: #5e7d70; }
+body:not([data-ds-dark-theme]) .island-float .check-mark { color: #42695a; background: #f4faf7; border-color: rgba(24,64,50,.22); }
+body:not([data-ds-dark-theme]) .island-float .check-now { color: #14703f; background: rgba(60,190,125,.18); border-color: rgba(40,150,95,.35); }
 /* jobs */
-body:not([data-ds-dark-theme]) .island-float .job-chip { color: #3d5c50; background: rgba(255,255,255,.6); border-color: rgba(28,70,55,.14); }
-body:not([data-ds-dark-theme]) .island-float .job-chip b { color: #5a7a6c; }
-body:not([data-ds-dark-theme]) .island-float .job-name { color: #24503f; }
-body:not([data-ds-dark-theme]) .island-float .job-chip--failed { background: rgba(255,235,225,.75); border-color: rgba(190,90,50,.28); }
-/* 结果小票 */
-body:not([data-ds-dark-theme]) .island-float .receipt-strip { background: rgba(255,255,255,.6); border-color: rgba(28,70,55,.14); }
-body:not([data-ds-dark-theme]) .island-float .receipt-strip span { color: #527467; }
-body:not([data-ds-dark-theme]) .island-float .receipt-strip b { color: #15352b; }
-/* 小票堆 */
-body:not([data-ds-dark-theme]) .island-float .recent-head { color: #5a7a6c; }
-body:not([data-ds-dark-theme]) .island-float .recent-item { color: #3d5c50; background: rgba(255,255,255,.55); border-color: rgba(28,70,55,.13); }
-body:not([data-ds-dark-theme]) .island-float .recent-item:hover { background: rgba(255,255,255,.85); }
-body:not([data-ds-dark-theme]) .island-float .recent-meta { color: #5a7a6c; }
+body:not([data-ds-dark-theme]) .island-float .job-chip b { color: #42695a; }
+body:not([data-ds-dark-theme]) .island-float .job-name { color: #16402f; }
+body:not([data-ds-dark-theme]) .island-float .job-chip--failed { background: #fff5f0; border-color: rgba(190,90,50,.32); }
+/* receipt */
+body:not([data-ds-dark-theme]) .island-float .receipt-strip span { color: #3c5c4e; }
+body:not([data-ds-dark-theme]) .island-float .receipt-strip b { color: #0d2b21; }
+/* recent */
+body:not([data-ds-dark-theme]) .island-float .recent-head { color: #42695a; }
+body:not([data-ds-dark-theme]) .island-float .recent-item { color: #27493c; }
+body:not([data-ds-dark-theme]) .island-float .recent-item:hover { background: #f2faf5; box-shadow: 0 2px 8px rgba(20,55,42,.16); }
+body:not([data-ds-dark-theme]) .island-float .recent-meta { color: #42695a; }
 /* 过程面板 */
-body:not([data-ds-dark-theme]) .island-float .activity-feed { border-top-color: rgba(28,70,55,.12); }
-body:not([data-ds-dark-theme]) .island-float .feed-item { color: #3d5c50; }
-body:not([data-ds-dark-theme]) .island-float .feed-step { color: #24503f; }
-body:not([data-ds-dark-theme]) .island-float .feed-receipt { color: #1e7a4e; }
-body:not([data-ds-dark-theme]) .island-float .feed-tool { background: rgba(255,255,255,.65); border-color: rgba(28,70,55,.14); }
-body:not([data-ds-dark-theme]) .island-float .feed-tool-name { color: #24503f; }
-body:not([data-ds-dark-theme]) .island-float .feed-tool-args code { color: #3a6b58; }
-body:not([data-ds-dark-theme]) .island-float .feed-tool-meta { color: #5a7a6c; }
-body:not([data-ds-dark-theme]) .island-float .copy-button { color: #3a6b58; }
-body:not([data-ds-dark-theme]) .island-float .copy-button:hover { background: rgba(28,70,55,.08); color: #17382c; }
-body:not([data-ds-dark-theme]) .island-float .feed-item--system { color: #6b8378; }
-body:not([data-ds-dark-theme]) .island-float .feed-item--tool .feed-item-mark { background: #3a9c78; }
+body:not([data-ds-dark-theme]) .island-float .activity-feed { border-top-color: rgba(24,64,50,.18); }
+body:not([data-ds-dark-theme]) .island-float .feed-item { color: #27493c; }
+body:not([data-ds-dark-theme]) .island-float .feed-step { color: #16402f; font-weight: 700; }
+body:not([data-ds-dark-theme]) .island-float .feed-receipt { color: #14703f; }
+body:not([data-ds-dark-theme]) .island-float .feed-tool-name { color: #16402f; }
+body:not([data-ds-dark-theme]) .island-float .feed-tool-args code { color: #2c5c48; }
+body:not([data-ds-dark-theme]) .island-float .feed-tool-meta { color: #42695a; }
+body:not([data-ds-dark-theme]) .island-float .copy-button { color: #2c5c48; }
+body:not([data-ds-dark-theme]) .island-float .copy-button:hover { background: rgba(24,64,50,.1); color: #0d2b21; }
+body:not([data-ds-dark-theme]) .island-float .feed-item--system { color: #557468; }
+body:not([data-ds-dark-theme]) .island-float .feed-item-mark { background: #2f9c74; }
+body:not([data-ds-dark-theme]) .island-float .feed-item--done .feed-item-mark { background: #3aa95c; }
+body:not([data-ds-dark-theme]) .island-float .feed-item--reasoning .feed-item-mark { background: #3d9db8; }
 /* 页脚 / 审批 */
-body:not([data-ds-dark-theme]) .island-float .details-button { color: #17382c; }
-body:not([data-ds-dark-theme]) .island-float .details-button:hover { color: #0e5a3f; }
-body:not([data-ds-dark-theme]) .island-float .footer-status { color: #3d5c50; }
-body:not([data-ds-dark-theme]) .island-float .button--quiet { color: #6b3d2a; background: rgba(120,60,30,.08); border-color: rgba(120,60,30,.2); }
-body:not([data-ds-dark-theme]) .island-float .approval-copy { color: #6b3d2a; }
-body:not([data-ds-dark-theme]) .island-float .approval-lock { color: #c96f3d; }
-body:not([data-ds-dark-theme]) .island-float .approval-resolved { color: #2c4f42; }
-body:not([data-ds-dark-theme]) .island-float .stream-line--typing .stream-caret { box-shadow: 0 0 8px rgba(30,120,85,.55); }
+body:not([data-ds-dark-theme]) .island-float .details-button { color: #0d2b21; }
+body:not([data-ds-dark-theme]) .island-float .details-button:hover { color: #07583a; }
+body:not([data-ds-dark-theme]) .island-float .footer-status { color: #27493c; }
+body:not([data-ds-dark-theme]) .island-float .status-dot { box-shadow: 0 0 10px rgba(0,0,0,.18); }
+body:not([data-ds-dark-theme]) .island-float .button--quiet { color: #5c311c; background: rgba(120,60,30,.12); border-color: rgba(120,60,30,.3); }
+body:not([data-ds-dark-theme]) .island-float .approval-copy { color: #5c311c; }
+body:not([data-ds-dark-theme]) .island-float .approval-lock { color: #b85f2e; }
+body:not([data-ds-dark-theme]) .island-float .approval-resolved { color: #1d4234; }
+body:not([data-ds-dark-theme]) .island-float .stream-line--typing .stream-caret { box-shadow: 0 0 8px rgba(30,120,85,.6); }
