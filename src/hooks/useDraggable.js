@@ -23,13 +23,17 @@ function readOffset(storageKey) {
  *   const drag = useDraggable({ storageKey: 'my-widget:pos' })
  *   <div ref={drag.ref} {...drag.handlers} style={drag.style} className={drag.dragging ? 'is-dragging' : ''}>
  *
- * 交互细节：
- *   - 按下任意非输入区开始跟踪；位移超过 4px 判定为拖拽；
- *   - 拖拽结束后抑制随之而来的 click（按钮、紧凑点不会误触，单击仍正常）；
- *   - 拖拽期间元素加 `is-dragging` 类（用于 cursor / 禁用过渡 / 禁止选中）；
- *   - 用 setPointerCapture 实现指针移出元素后仍持续拖拽。
+ * 设计要点（不干扰原生交互）：
+ *   - **不用 setPointerCapture**：捕获会把 click 重定向到容器，导致岛内按钮
+ *     （查看过程 / 批准 / 暂不…）收不到点击。这里按下只记录起点，
+ *     随后在 window 上挂 pointermove/pointerup 完成拖拽会话；
+ *   - 位移超过 4px 才判定为拖拽（此时加 `is-dragging` 类并抑制随后的 click）；
+ *   - 单击（未移动）完全走原生 click 流程，按钮照常工作；
+ *   - 拖拽后的 click 抑制只作用于「落在岛表面内」的目标，
+ *     原生界面元素的点击绝不拦截。
  */
 export function useDraggable({ storageKey } = {}) {
+  const [tracking, setTracking] = useState(false)
   const [dragging, setDragging] = useState(false)
   const [offset, setOffset] = useState(() => readOffset(storageKey))
   const elRef = useRef(null)
@@ -50,37 +54,12 @@ export function useDraggable({ storageKey } = {}) {
     }
   }, [])
 
-  const onPointerDown = useCallback(e => {
-    if (e.button !== 0) return
-    if (e.target.closest('input, textarea, select')) return
-    drag.current = {
-      id: e.pointerId,
-      startX: e.clientX,
-      startY: e.clientY,
-      baseX: offsetRef.current?.x ?? 0,
-      baseY: offsetRef.current?.y ?? 0,
-      moved: false,
-    }
-    e.currentTarget.setPointerCapture?.(e.pointerId)
-    setDragging(true)
-  }, [])
-
-  const onPointerMove = useCallback(e => {
-    const d = drag.current
-    if (!d || e.pointerId !== d.id) return
-    const dx = e.clientX - d.startX
-    const dy = e.clientY - d.startY
-    if (!d.moved && Math.hypot(dx, dy) < 4) return
-    if (!d.moved) d.moved = true
-    setOffset(clampOffset(d.baseX + dx, d.baseY + dy))
-  }, [clampOffset])
-
-  const onPointerUp = useCallback(e => {
-    const d = drag.current
-    if (!d || e.pointerId !== d.id) return
+  /** 结束一次拖拽会话；moved=true 时保存位置并抑制本次拖拽引发的 click。 */
+  const endDrag = useCallback(moved => {
     drag.current = null
+    setTracking(false)
     setDragging(false)
-    if (d.moved) {
+    if (moved) {
       // 只抑制「落在岛表面内」的 click（拖拽后防误触岛内按钮/紧凑点）；
       // 岛外元素（原生界面）的点击绝不受影响。
       const suppress = ev => {
@@ -99,22 +78,55 @@ export function useDraggable({ storageKey } = {}) {
     }
   }, [storageKey])
 
-  const onPointerCancel = useCallback(() => {
-    drag.current = null
-    setDragging(false)
-  }, [])
-
-  // 组件卸载时兜底释放指针捕获
-  useEffect(() => () => {
-    if (drag.current?.id && elRef.current?.hasPointerCapture?.(drag.current.id)) {
-      elRef.current.releasePointerCapture(drag.current.id)
+  // 拖拽会话的 window 级监听（按下即挂，松开即卸；不干扰按钮点击）
+  useEffect(() => {
+    if (!tracking) return
+    const move = e => {
+      const d = drag.current
+      if (!d || e.pointerId !== d.id) return
+      const dx = e.clientX - d.startX
+      const dy = e.clientY - d.startY
+      if (!d.moved && Math.hypot(dx, dy) < 4) return
+      if (!d.moved) {
+        d.moved = true
+        setDragging(true)
+      }
+      setOffset(clampOffset(d.baseX + dx, d.baseY + dy))
     }
+    const up = e => {
+      const d = drag.current
+      if (!d || e.pointerId !== d.id) return
+      endDrag(d.moved)
+    }
+    const cancel = () => endDrag(false)
+    window.addEventListener('pointermove', move)
+    window.addEventListener('pointerup', up)
+    window.addEventListener('pointercancel', cancel)
+    return () => {
+      window.removeEventListener('pointermove', move)
+      window.removeEventListener('pointerup', up)
+      window.removeEventListener('pointercancel', cancel)
+    }
+  }, [tracking, clampOffset, endDrag])
+
+  const onPointerDown = useCallback(e => {
+    if (e.button !== 0) return
+    if (e.target.closest('input, textarea, select')) return
+    drag.current = {
+      id: e.pointerId,
+      startX: e.clientX,
+      startY: e.clientY,
+      baseX: offsetRef.current?.x ?? 0,
+      baseY: offsetRef.current?.y ?? 0,
+      moved: false,
+    }
+    setTracking(true)
   }, [])
 
   return {
     ref: elRef,
     dragging,
     style: offset ? { transform: `translate3d(${offset.x}px, ${offset.y}px, 0)` } : undefined,
-    handlers: { onPointerDown, onPointerMove, onPointerUp, onPointerCancel },
+    handlers: { onPointerDown },
   }
 }

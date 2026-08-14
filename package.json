@@ -1,7 +1,7 @@
 {
   "name": "dsh-dynamic-island",
   "description": "Liquid Glass Dynamic Island for the DeepSeek Harness Web GUI — a dual-face shell.overlay client plugin (design prototype + plugin in one repo)",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "type": "module",
   "main": "./src/index.js",
   "exports": {

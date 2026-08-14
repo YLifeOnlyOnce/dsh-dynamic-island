@@ -48,7 +48,10 @@
 
 /* 主卡文案 */
 .task-copy { flex: 1; min-width: 0; }
-.task-topline { display: flex; justify-content: space-between; align-items: center; gap: 12px; color: #ceede1; font-size: 10px; font-weight: 700; letter-spacing: .05em; }
+.task-topline { display: flex; flex-wrap: nowrap; justify-content: space-between; align-items: center; gap: 12px; min-width: 0; color: #ceede1; font-size: 10px; font-weight: 700; letter-spacing: .05em; }
+/* 眉题/步骤不收缩不换行；模型徽章可收缩并以省略号收尾（避免文字竖排） */
+.task-topline > span:not(.model-chip) { flex: 0 0 auto; white-space: nowrap; }
+.task-topline .model-chip { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
 .task-step { color: #b7d2c6; font-family: "SF Mono", ui-monospace, monospace; font-weight: 500; letter-spacing: 0; white-space: nowrap; }
 .task-copy h1 { margin: 5px 0 4px; color: #f5fcf8; font-size: 16px; line-height: 1.25; letter-spacing: -.04em; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .task-copy p { color: #bdd0c6; font: 10.5px/1.5 "SF Mono", ui-monospace, monospace; white-space: normal; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
