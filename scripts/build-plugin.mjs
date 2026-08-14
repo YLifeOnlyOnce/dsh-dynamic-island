@@ -30,6 +30,9 @@ const PLATFORM_WORDS = [
   '@deepseek-ai/dsh-client-ui-primitives',
   '@deepseek-ai/dsh-client-ui-attachment',
   '@deepseek-ai/dsh-client-schema-form',
+  // 运行时引擎（defineStore/createSnapshotStore）：immediately-tier 行，
+  // 先于依赖它的 bundle 注册进 loader 模块表（ui-layout 同款外部依赖）。
+  '@deepseek-ai/dsh-client-runtime/client',
 ]
 
 const PLUGIN_ID = 'dsh-dynamic-island'
