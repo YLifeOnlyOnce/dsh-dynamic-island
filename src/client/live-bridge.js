@@ -121,16 +121,23 @@ export function createLiveBridge(ctx, actions) {
     /**
      * 批准/拒绝审批 —— 快照 pending 里 kind==='approval' 的交互，
      * 用其 respond() 回执（approval/resolved：allowed-once | rejected）。
+     * 与原生 composer 的 ApprovalPanel 走同一实例、同一通道：
+     * 谁先回执谁结算（settled 守卫对重复回执同步抛错），原生输入栏不受影响。
      */
     respondApproval(outcome) {
       const { snapshot } = current()
       const item = snapshot?.pending?.find(p => p?.kind === 'approval')
       if (!item?.respond) return false
-      void item.respond({
-        approvalId: item.payload?.approvalId,
-        outcome: outcome === true ? 'allowed-once' : 'rejected',
-      })
-      return true
+      try {
+        void item.respond({
+          approvalId: item.payload?.approvalId,
+          outcome: outcome === true ? 'allowed-once' : 'rejected',
+        })
+        return true
+      } catch {
+        // 已由原生面结算（fail-loud 守卫）——岛不再重复回执，也不向原生流程抛错
+        return false
+      }
     },
     /** 解除阻塞 —— ctx.remote.goals.resume(sessionId, ref)（ui-goal 同款 CAS 远端）。 */
     unblock() {

@@ -173,6 +173,21 @@ dsh plugin --profile web add dsh-dynamic-island
 
 ---
 
+## 八·五、镜像原则（不改变 Harness 原生交互）
+
+岛的一切操作都是**原生面的镜像入口**，绝不动 Harness 原有的交互：
+
+- **审批**：与原生 composer 的 ApprovalPanel 共用同一个 `PendingWait` 实例与
+  `.respond()` 回执通道——谁先回执谁结算（settled 守卫对重复回执同步抛错，
+  岛已 try/catch 兜住并如实提示「已在原生面处理」），原生输入栏不受任何影响。
+- **停止/取消**：调用与原生停止按钮同一个 `session.cancel()`。
+- **解除阻塞**：调用与 ui-goal 同一个 `ctx.remote.goals.resume` CAS 远端。
+- **槽位**：岛只注册 `shell.overlay`（root 浮层），不触碰任何 composer /
+  input / header 原生槽位。
+- **全局监听**：岛不添加全局键盘监听；拖拽后仅以 capture-once 抑制「落在岛
+  表面内」的 click（`elRef.contains(target)` 校验），原生元素的点击绝不拦截。
+- **事件面**：岛只读快照/投影（HostObservable 只读），不修改任何会话状态。
+
 ## 九、对齐审计表（逐功能 × DSH 信号，2026-08 核实）
 
 > ✅ = 信号存在、代码已按真实形状接入并经桩测试；⚠️ = 信号存在但尚未接入/需实机核对；

@@ -81,8 +81,13 @@ export function useDraggable({ storageKey } = {}) {
     drag.current = null
     setDragging(false)
     if (d.moved) {
-      // 抑制这次拖拽引发的 click，避免误触按钮 / 紧凑点
-      const suppress = ev => { ev.preventDefault(); ev.stopPropagation() }
+      // 只抑制「落在岛表面内」的 click（拖拽后防误触岛内按钮/紧凑点）；
+      // 岛外元素（原生界面）的点击绝不受影响。
+      const suppress = ev => {
+        if (!elRef.current || !elRef.current.contains(ev.target)) return
+        ev.preventDefault()
+        ev.stopPropagation()
+      }
       window.addEventListener('click', suppress, { capture: true, once: true })
       if (storageKey && typeof localStorage !== 'undefined') {
         try {
