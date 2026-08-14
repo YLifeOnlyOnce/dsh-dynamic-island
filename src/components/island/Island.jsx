@@ -5,7 +5,7 @@ import { StreamLine } from './StreamLine.jsx'
 import { GoalRow } from './GoalRow.jsx'
 import { TodoTicker } from './TodoTicker.jsx'
 import { ChecklistPanel } from './ChecklistPanel.jsx'
-import { JobChips } from './JobChips.jsx'
+import { ModelChip } from './ModelChip.jsx'
 import { ReceiptStats } from './ReceiptStats.jsx'
 import { RecentReceipts } from './RecentReceipts.jsx'
 import { ActivityFeed } from './ActivityFeed.jsx'
@@ -15,7 +15,7 @@ import { IslandFooter } from './IslandFooter.jsx'
 /**
  * 灵动岛本体：紧凑小点 ⇄ 展开卡片。
  * 内容自上而下：主卡（核心 + 文案）→ 进度条 → 目标环 → 任务区
- * → 后台任务 → 结果小票/小票堆 → 过程面板 → 审批行或页脚。
+ * → 模型徽章 → 结果小票/小票堆 → 过程面板 → 审批行或页脚。
  */
 export function Island() {
   const {
@@ -63,7 +63,11 @@ export function Island() {
           <TodoTicker todo={state.todo} open={listOpen} onToggle={() => setListOpen(o => !o)} />
         )}
         {listOpen && state.todos && <ChecklistPanel todos={state.todos} done={state.todo.done} />}
-        <JobChips jobs={state.jobs} />
+        {state.model && (
+          <div className="model-row">
+            <ModelChip model={state.model} />
+          </div>
+        )}
         {state.receipt && <ReceiptStats receipt={state.receipt} />}
         <RecentReceipts recent={state.recent} />
 

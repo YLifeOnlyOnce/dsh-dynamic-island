@@ -16,7 +16,6 @@ export function useCompanionState() {
   const [listOpen, setListOpen] = useState(false)
   const [feedExtra, setFeedExtra] = useState([])
   const [paletteOpen, setPaletteOpen] = useState(false)
-  const [stopping, setStopping] = useState(false)
   const [retrying, setRetrying] = useState(false)
   const [unblocking, setUnblocking] = useState(false)
   const [continuing, setContinuing] = useState(false)
@@ -42,7 +41,6 @@ export function useCompanionState() {
     setExpanded(true)
     setApproved(null)
     setFeedExtra([])
-    setStopping(false)
     setRetrying(false)
     setUnblocking(false)
     setContinuing(false)
@@ -80,13 +78,6 @@ export function useCompanionState() {
     }
     pushTimer(setTimeout(() => setAutoPlaying(false), t))
   }, [autoPlaying, pushTimer, resetFor, handleApproval])
-
-  const handleStop = useCallback(() => {
-    // 对应 agent/turn-stopping：只发反馈，不驱动底层任务。
-    setStopping(true)
-    setFeedExtra(prev => [...prev, { kind: 'system', text: '已请求停止 · agent/turn-stopping' }])
-    pushTimer(setTimeout(() => setStopping(false), 1800))
-  }, [pushTimer])
 
   const handleRetry = useCallback(() => {
     // 对应 agent/request 重新发起。
@@ -145,7 +136,6 @@ export function useCompanionState() {
     paletteOpen,
     // 交互态
     approved,
-    stopping,
     retrying,
     unblocking,
     continuing,
@@ -159,7 +149,6 @@ export function useCompanionState() {
     startDemo,
     stopDemo,
     handleApproval,
-    handleStop,
     handleRetry,
     handleUnblock,
     handleContinue,

@@ -100,7 +100,8 @@ Open the address Vite prints — the `灵动岛演示` dock at the bottom flips 
 - In **approval**, hit 批准 / 暂不 and watch the island reflect the result instantly;
 - Hit 查看过程 to expand the in-island activity feed: tool cards with exit code, duration, and a one-click copy of the command;
 - Hit 清单 to expand the full three-state task checklist; the goal ring shows goal round progress;
-- **Stop** while working, **retry** on alert, **unblock** when blocked, **continue** past max-tokens;
+- **Retry** on alert, **unblock** when blocked, **continue** past max-tokens (stop is left to the native Harness UI);
+- A model badge shows the model in use (replacing the background-job chips);
 - **Drag** the island from any blank spot to reposition it — the spot is remembered across reloads;
 - Press **⌘K** (or Ctrl+K) for the command palette — type to filter, ↑↓ to move, ↵ to run;
 - Hit ▶ 自动演示 to watch the whole arc — idle → thinking → working → approval (auto-approved) → complete — and press **Esc** to tuck the island away at any time.
@@ -142,7 +143,7 @@ In-repo pieces: `src/client/` (browser half: `index.js`, `IslandDock.jsx`, `isla
 - [x] Tool-command cards (exit code, duration, copy)
 - [x] Result receipts (files, checks, tokens, duration) + recent-wins receipt stack
 - [x] Goal progress ring + full task checklist (goal, `todo/write`)
-- [x] Background job chips (jobs) + model badge (`request/context`)
+- [x] Model badge (`request/context`, shows the model in use)
 - [x] ⌘K command palette + auto-play demo
 - [x] Integration blueprint + plugin skeleton (repo root is the dual-face client package)
 - [x] `build:plugin` emits the loader-compliant bundle; smoke-tested (handshake / factory / apply / bridge / verbs)

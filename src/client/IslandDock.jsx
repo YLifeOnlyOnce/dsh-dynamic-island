@@ -18,7 +18,7 @@ export function IslandDock({ useStore, islandActions, t }) {
   const [listOpen, setListOpen] = useState(false)
   const [approved, setApproved] = useState(null)
   const [feedExtra, setFeedExtra] = useState([])
-  const [transient, setTransient] = useState({ stopping: false, retrying: false, unblocking: false, continuing: false })
+  const [transient, setTransient] = useState({ retrying: false, unblocking: false, continuing: false })
   const timers = useRef([])
   // 可拖拽 + 位置记忆（localStorage）
   const drag = useDraggable({ storageKey: 'dsh-dynamic-island:pos' })
@@ -46,12 +46,6 @@ export function IslandDock({ useStore, islandActions, t }) {
         // 插件模式已移除审批面（ignoreApproval）——此路径不可达，仅保留兜底反馈。
         setApproved(value)
         appendFeed(value ? '已批准 · 原生输入栏同步生效' : '已暂缓 · 方案保留')
-      },
-      handleStop() {
-        mark('stopping', true)
-        islandActions?.cancel?.()
-        appendFeed('已请求停止 · session.cancel()')
-        flash('stopping')
       },
       handleRetry() {
         mark('retrying', true)
@@ -83,7 +77,6 @@ export function IslandDock({ useStore, islandActions, t }) {
       paletteOpen: false,
       approved,
       autoPlaying: false,
-      stopping: transient.stopping,
       retrying: transient.retrying,
       unblocking: transient.unblocking,
       continuing: transient.continuing,
