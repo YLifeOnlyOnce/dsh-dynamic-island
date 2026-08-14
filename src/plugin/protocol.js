@@ -123,18 +123,16 @@ export function deriveMood({
       }
     : undefined
 
-  // ── 活动行（detail）：只放真实内容 —— 流式正文（partial），无则隐藏 ──
-  //   与 title 不重复（title 是目标/任务），stream 打字机在 live 模式弃用
-  //   （数据陈旧、与 detail 重复），demo 的剧本 stream 走另一条渲染路径。
-  const detail = partial?.text?.trim() || undefined
+  // ── 活动行（detail）：只放真实内容 —— partial 的正文/推理，无则隐藏 ──
+  const detail = partialText(partial)
 
-  // ── 过程活动流（live 只放真实可见内容；空则收起，不渲染填充语）──
-  //   运行中的工具以文本行呈现（不套工具卡 —— 无参数/退出码，套卡只会
-  //   产生误导性的「待审批」胶囊）。
+  // ── 过程活动流（live 只放真实可见内容；空则收起）──
+  //   运行中的工具以文本行呈现，带上真实参数预览（argsRaw）：
+  //   如 `bash · rg "@media" src/components`、`edit · src/App.jsx`。
   const feed = (running && runningCalls.length > 0)
     ? runningCalls.map(call => ({
         kind: 'text',
-        text: `正在执行 ${call.name ?? '工具'}`,
+        text: [call.name ?? '工具', argsPreview(call)].filter(Boolean).join(' · '),
         tone: 'answer',
       }))
     : []
@@ -144,10 +142,11 @@ export function deriveMood({
     label: MOOD_LABEL[mood],
     tone: MOOD_TONE[mood],
     eyebrow: MOOD_META[mood].eyebrow,
-    title: titleOf(mood, projections),
+    title: titleOf(mood, projections, { running, runningCalls, partial }),
     detail,
     step,
     progress,
+    running,
     model,
     goal: goal
       ? {
@@ -226,12 +225,68 @@ export const MOOD_TONE = {
   'max-tokens': 'rose',
 }
 
-/** 标题：有目标用目标，否则按情绪给默认。 */
-function titleOf(mood, { goal, todos } = {}) {
+/** 工具名 → 动词短语（live 标题用，避免全显示「思考下一步」）。 */
+const TOOL_LABEL = {
+  bash: '执行命令',
+  pwsh: '执行命令',
+  shell: '执行命令',
+  read: '读取文件',
+  'fs-read': '读取文件',
+  write: '写入文件',
+  'fs-write': '写入文件',
+  edit: '编辑文件',
+  'str-replace-editor': '编辑文件',
+  grep: '搜索代码',
+  rg: '搜索代码',
+  glob: '搜索文件',
+}
+
+/** 运行中的工具 → 标题，如「正在执行命令 · bash」。 */
+function toolTitle(call) {
+  const verb = TOOL_LABEL[call.name] ?? '执行工具'
+  return `正在${verb} · ${call.name}`
+}
+
+/** partial 的正文/推理文本（blocks 结构）；无则 undefined。 */
+function partialText(partial) {
+  const blocks = partial?.blocks
+  if (!Array.isArray(blocks) || blocks.length === 0) return undefined
+  const text = blocks.filter(b => b?.kind === 'text').map(b => b.text).join('').trim()
+  if (text) return text
+  const reasoning = blocks.filter(b => b?.kind === 'reasoning').map(b => b.text).join('').trim()
+  return reasoning || undefined
+}
+
+/** 工具参数预览：argsRaw 解析出 command/filePath/path，否则截断原文。 */
+function argsPreview(call) {
+  const raw = call?.argsRaw
+  if (!raw || typeof raw !== 'string') return undefined
+  try {
+    const parsed = JSON.parse(raw)
+    if (typeof parsed === 'object' && parsed !== null) {
+      const pick = parsed.command ?? parsed.filePath ?? parsed.path ?? parsed.arguments
+      if (typeof pick === 'string' && pick) return pick
+    }
+  } catch {
+    /* 非 JSON 参数原文，走截断 */
+  }
+  const s = raw.trim()
+  return s.length > 48 ? s.slice(0, 48) + '…' : s || undefined
+}
+
+/** 标题：目标 → 进行中任务 → 运行工具 → 准备调用 → 情绪默认。 */
+function titleOf(mood, { goal, todos } = {}, { running, runningCalls, partial } = {}) {
   if (mood === 'approval') return '等待你的确认'
   if (goal?.objective) return goal.objective
   const active = todos?.find(t => t.status === 'in_progress')
-  return active?.content ?? MOOD_TITLE[mood]
+  if (active?.content) return active.content
+  if (mood === 'working' && runningCalls?.length > 0) return toolTitle(runningCalls[0])
+  if (mood === 'thinking' && running) {
+    // 模型已决定调用工具（partial 含 tool-call 块）但尚未进入运行 → 准备调用
+    const pendingTool = partial?.blocks?.find(b => b?.kind === 'tool-call')
+    if (pendingTool?.name) return `准备调用 · ${pendingTool.name}`
+  }
+  return MOOD_TITLE[mood]
 }
 
 const MOOD_TITLE = {

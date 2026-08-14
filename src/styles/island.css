@@ -123,3 +123,7 @@
 @keyframes spin { to { transform: rotate(360deg); } }
 @keyframes toast { from { opacity: 0; transform: translate(-50%, -6px); } to { opacity: 1; transform: translate(-50%, 0); } }
 @keyframes caret-blink { 50% { opacity: 0; } }
+
+/* 运行中且无真实进度（如无 todo 投影）时：不确定进度条流动动画 */
+.progress-line--live span { width: 38% !important; animation: progress-slide 1.4s cubic-bezier(.4,0,.2,1) infinite; }
+@keyframes progress-slide { 0% { transform: translateX(-140%); } 100% { transform: translateX(340%); } }

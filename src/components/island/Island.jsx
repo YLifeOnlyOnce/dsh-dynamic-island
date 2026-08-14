@@ -55,7 +55,7 @@ export function Island() {
           </button>
         </div>
 
-        <div className="progress-line" aria-hidden="true"><span style={{ width: `${state.progress}%` }} /></div>
+        <div className={`progress-line ${state.running && !state.progress ? 'progress-line--live' : ''}`} aria-hidden="true"><span style={{ width: `${state.progress}%` }} /></div>
 
         <GoalRow goal={state.goal} tone={state.tone} />
         {state.todo && active !== 'complete' && (
